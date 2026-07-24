@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Globe Trotter — Smart travel planning</title>
+<meta name="description" content="Plan your next trip with polished destination inspiration, live recommendations, and shareable itineraries.">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="27" fill="currentColor" opacity="0.16"></circle>
+          <path d="M20 25l16 6-5 5 6 7-7 4-5-7-6 5 1-20z" fill="currentColor"></path>
+        </svg>
+      </span>
+      Globe<em>Trotter</em>
+    </a>
+    <div class="nav-links">
+      <a href="#destinations">Destinations</a>
+      <a href="#recommendations">For you</a>
+      <a href="#itineraries">My trips</a>
+    </div>
+    <div class="nav-auth" id="navAuth">
+      <button class="btn btn-ghost" data-open="login">Log in</button>
+      <button class="btn btn-solid" data-open="register">Sign up</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-copy">
+    <p class="eyebrow">Blue-sky travel planning • Cameroon & beyond</p>
+    <h1>Discover <span>remarkable places</span> with confidence.</h1>
+    <p class="hero-sub">Globe Trotter combines real destination photography, tailored recommendations, and shareable itineraries so your next escape feels effortless.</p>
+    <div class="hero-cta">
+      <a href="#destinations" class="btn btn-solid btn-lg">Explore destinations</a>
+      <button class="btn btn-outline btn-lg" data-open="register">Create free account</button>
+    </div>
+    <div class="hero-badges">
+      <span>12 curated stops</span>
+      <span>Coast, culture & nature</span>
+      <span>Easy trip planning</span>
+    </div>
+  </div>
+
+  <div class="hero-media">
+    <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80" alt="Aerial view of a plane flying over a bright travel landscape">
+    <div class="hero-media-card">
+      <span class="hero-media-dot"></span>
+      <strong>Real-life inspiration</strong>
+      <p>Fresh visuals, curated routes, and a calm modern experience.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section class="section" id="destinations">
+    <div class="section-head">
+      <p class="eyebrow">Real places, real photos</p>
+      <h2>Start with destinations that feel worth the trip</h2>
+      <div class="filter-bar">
+        <input type="search" id="searchInput" placeholder="Search destinations, areas, or interests…">
+        <select id="categorySelect">
+          <option value="">All categories</option>
+        </select>
+      </div>
+    </div>
+    <div class="card-grid" id="destinationGrid">
+      <p class="loading">Loading destinations…</p>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="recommendations">
+    <div class="section-head">
+      <p class="eyebrow">Made for you</p>
+      <h2>Recommendations</h2>
+      <p class="section-note" id="recNote">Showing top-rated picks. Log in for recommendations based on your preferences and past trips.</p>
+    </div>
+    <div class="card-grid" id="recGrid"></div>
+  </section>
+
+  <section class="section" id="itineraries">
+    <div class="section-head">
+      <p class="eyebrow">Your trip, your way</p>
+      <h2>Build and share an itinerary</h2>
+      <p class="section-note" id="itinNote">Log in to create an itinerary from the destinations above.</p>
+    </div>
+
+    <form id="itinForm" class="itin-form hidden">
+      <div class="itin-row">
+        <input type="text" id="itinTitle" placeholder="Trip title, e.g. Weekend in Yaoundé" required>
+        <input type="date" id="itinDate">
+      </div>
+      <p class="itin-hint">Selected stops: <span id="selectedCount">0</span> — tap "Add to trip" on any destination card above.</p>
+      <textarea id="itinNotes" placeholder="Notes (optional)"></textarea>
+      <button type="submit" class="btn btn-solid">Save itinerary</button>
+    </form>
+
+    <div class="itin-list" id="itinList"></div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div>
+      <strong>Globe Trotter</strong> — polished travel planning for Cameroon and beyond.
+    </div>
+    <div class="footer-credits" id="creditsList">Destination photography credits loading…</div>
+  </div>
+</footer>
+
+<!-- Auth Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+
+    <div class="modal-panel" id="panelLogin">
+      <h3>Welcome back</h3>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit" class="btn btn-solid btn-block">Log in</button>
+      </form>
+      <p class="modal-switch">New here? <a href="#" data-open="register">Create an account</a></p>
+      <p class="form-error" id="loginError"></p>
+    </div>
+
+    <div class="modal-panel hidden" id="panelRegister">
+      <h3>Create your account</h3>
+      <form id="registerForm">
+        <input type="text" id="regName" placeholder="Full name" required>
+        <input type="email" id="regEmail" placeholder="Email" required>
+        <input type="password" id="regPassword" placeholder="Password (min. 6 characters)" required minlength="6">
+        <fieldset class="tag-fieldset">
+          <legend>What do you like?</legend>
+          <label><input type="checkbox" value="history"> History</label>
+          <label><input type="checkbox" value="nature"> Nature</label>
+          <label><input type="checkbox" value="culture"> Culture</label>
+          <label><input type="checkbox" value="food"> Food</label>
+          <label><input type="checkbox" value="family"> Family</label>
+        </fieldset>
+        <button type="submit" class="btn btn-solid btn-block">Sign up</button>
+      </form>
+      <p class="modal-switch">Already have an account? <a href="#" data-open="login">Log in</a></p>
+      <p class="form-error" id="regError"></p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

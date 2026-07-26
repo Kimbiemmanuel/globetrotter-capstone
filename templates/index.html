@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Globe Trotter — Smart travel planning</title>
-<meta name="description" content="Plan your next trip with polished destination inspiration, live recommendations, and shareable itineraries.">
+<title>Globe Trotter — Discover Yaoundé and Cameroon</title>
+<meta name="description" content="Explore iconic Yaoundé landmarks, curated touristic spots, and shareable travel plans in a polished travel companion experience.">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -34,36 +34,42 @@
 
 <header class="hero" id="top">
   <div class="hero-copy">
-    <p class="eyebrow">Blue-sky travel planning • Cameroon & beyond</p>
-    <h1>Discover <span>remarkable places</span> with confidence.</h1>
-    <p class="hero-sub">Globe Trotter combines real destination photography, tailored recommendations, and shareable itineraries so your next escape feels effortless.</p>
+    <p class="eyebrow">Yaoundé, Cameroon • Curated travel guide</p>
+    <h1>Discover the <span>heart of Cameroon</span> with confidence.</h1>
+    <p class="hero-sub">Globe Trotter blends iconic landmarks, touristic neighborhoods, and simple trip planning into a modern travel experience built for visitors exploring Yaoundé and beyond.</p>
     <div class="hero-cta">
       <a href="#destinations" class="btn btn-solid btn-lg">Explore destinations</a>
       <button class="btn btn-outline btn-lg" data-open="register">Create free account</button>
     </div>
     <div class="hero-badges">
-      <span>12 curated stops</span>
-      <span>Coast, culture & nature</span>
-      <span>Easy trip planning</span>
-    </div>
-  </div>
-
-  <div class="hero-media">
-    <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80" alt="Aerial view of a plane flying over a bright travel landscape">
-    <div class="hero-media-card">
-      <span class="hero-media-dot"></span>
-      <strong>Real-life inspiration</strong>
-      <p>Fresh visuals, curated routes, and a calm modern experience.</p>
+      <span>Yaoundé landmarks</span>
+      <span>Local markets & culture</span>
+      <span>Nature & weekend escapes</span>
     </div>
   </div>
 </header>
+
+<section class="feature-strip" aria-label="Travel highlights">
+  <article>
+    <h3>City stories</h3>
+    <p>From the I Love Cameroon monument to lively markets, every stop tells a vivid story of Yaoundé.</p>
+  </article>
+  <article>
+    <h3>Tailored picks</h3>
+    <p>Recommendations adapt to your interests, whether you love history, food, or forests.</p>
+  </article>
+  <article>
+    <h3>Shareable trips</h3>
+    <p>Save a route for your family, friends, or future self in a single itinerary.</p>
+  </article>
+</section>
 
 <main>
 
   <section class="section" id="destinations">
     <div class="section-head">
       <p class="eyebrow">Real places, real photos</p>
-      <h2>Start with destinations that feel worth the trip</h2>
+      <h2>Begin with places that feel unforgettable</h2>
       <div class="filter-bar">
         <input type="search" id="searchInput" placeholder="Search destinations, areas, or interests…">
         <select id="categorySelect">
@@ -80,7 +86,7 @@
     <div class="section-head">
       <p class="eyebrow">Made for you</p>
       <h2>Recommendations</h2>
-      <p class="section-note" id="recNote">Showing top-rated picks. Log in for recommendations based on your preferences and past trips.</p>
+      <p class="section-note" id="recNote">Showing top-rated picks. Log in for recommendations tailored to your travel style and favorite experiences.</p>
     </div>
     <div class="card-grid" id="recGrid"></div>
   </section>

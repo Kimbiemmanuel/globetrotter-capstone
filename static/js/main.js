@@ -1,0 +1,317 @@
+(() => {
+  const state = {
+    destinations: [],
+    selectedStops: new Set(),
+    token: localStorage.getItem("gt_token") || null,
+    user: JSON.parse(localStorage.getItem("gt_user") || "null"),
+  };
+
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+  function toast(msg) {
+    const el = $("#toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 2600);
+  }
+
+  function authHeaders() {
+    return state.token ? { Authorization: `Bearer ${state.token}` } : {};
+  }
+
+  // ---------------- Nav auth state ----------------
+  function renderNavAuth() {
+    const nav = $("#navAuth");
+    if (state.user) {
+      nav.innerHTML = `
+        <span style="font-size:.9rem;margin-right:8px;">Hi, ${state.user.name.split(" ")[0]}</span>
+        <button class="btn btn-ghost" id="logoutBtn">Log out</button>`;
+      $("#logoutBtn").addEventListener("click", logout);
+    } else {
+      nav.innerHTML = `
+        <button class="btn btn-ghost" data-open="login">Log in</button>
+        <button class="btn btn-solid" data-open="register">Sign up</button>`;
+      bindOpenTriggers();
+    }
+  }
+
+  function logout() {
+    state.token = null;
+    state.user = null;
+    localStorage.removeItem("gt_token");
+    localStorage.removeItem("gt_user");
+    renderNavAuth();
+    loadRecommendations();
+    renderItinerarySection();
+    toast("Logged out");
+  }
+
+  // ---------------- Modal ----------------
+  function openModal(which) {
+    $("#modalBackdrop").classList.add("open");
+    $("#panelLogin").classList.toggle("hidden", which !== "login");
+    $("#panelRegister").classList.toggle("hidden", which !== "register");
+  }
+  function closeModal() {
+    $("#modalBackdrop").classList.remove("open");
+    $("#loginError").textContent = "";
+    $("#regError").textContent = "";
+  }
+  function bindOpenTriggers() {
+    $$("[data-open]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        openModal(btn.dataset.open);
+      });
+    });
+  }
+  $("#modalClose").addEventListener("click", closeModal);
+  $("#modalBackdrop").addEventListener("click", (e) => {
+    if (e.target.id === "modalBackdrop") closeModal();
+  });
+
+  // ---------------- Destinations ----------------
+  async function loadDestinations() {
+    const res = await fetch("/destinations");
+    const data = await res.json();
+    state.destinations = data.destinations;
+    populateCategoryFilter();
+    renderDestinationGrid(state.destinations);
+    renderCredits();
+  }
+
+  function populateCategoryFilter() {
+    const select = $("#categorySelect");
+    const categories = [...new Set(state.destinations.map((d) => d.category))];
+    categories.forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      select.appendChild(opt);
+    });
+  }
+
+  function destCard(d, idx) {
+    const added = state.selectedStops.has(d.id);
+    return `
+      <article class="dest-card" style="animation-delay:${idx * 0.06}s">
+        <div class="dest-photo">
+          <img src="${d.image}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
+          <span class="dest-rating">★ ${d.rating}</span>
+        </div>
+        <div class="dest-body">
+          <span class="dest-cat">${d.category}</span>
+          <h3>${d.name}</h3>
+          <p class="dest-area">${d.area}</p>
+          <p class="dest-desc">${d.description}</p>
+          <div class="dest-actions">
+            <span class="dest-credit">📷 ${d.credit}</span>
+            <button class="add-btn ${added ? "added" : ""}" data-id="${d.id}">
+              ${added ? "Added ✓" : "Add to trip"}
+            </button>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  function renderDestinationGrid(list) {
+    const grid = $("#destinationGrid");
+    grid.innerHTML = list.length
+      ? list.map((d, i) => destCard(d, i)).join("")
+      : `<p class="loading">No destinations match your search.</p>`;
+    bindAddButtons(grid);
+  }
+
+  function bindAddButtons(scopeEl) {
+    scopeEl.querySelectorAll(".add-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        if (state.selectedStops.has(id)) {
+          state.selectedStops.delete(id);
+          btn.classList.remove("added");
+          btn.textContent = "Add to trip";
+        } else {
+          state.selectedStops.add(id);
+          btn.classList.add("added");
+          btn.textContent = "Added ✓";
+        }
+        $("#selectedCount").textContent = state.selectedStops.size;
+      });
+    });
+  }
+
+  function renderCredits() {
+    const unique = [...new Set(state.destinations.map((d) => d.credit))];
+    $("#creditsList").textContent = `Destination photography: ${unique.join(", ")}.`;
+  }
+
+  $("#searchInput").addEventListener("input", filterDestinations);
+  $("#categorySelect").addEventListener("change", filterDestinations);
+
+  function filterDestinations() {
+    const q = $("#searchInput").value.trim().toLowerCase();
+    const cat = $("#categorySelect").value;
+    const filtered = state.destinations.filter((d) => {
+      const matchQ = !q || d.name.toLowerCase().includes(q) || d.area.toLowerCase().includes(q) || d.tags.some((t) => t.includes(q));
+      const matchCat = !cat || d.category === cat;
+      return matchQ && matchCat;
+    });
+    renderDestinationGrid(filtered);
+  }
+
+  // ---------------- Recommendations ----------------
+  async function loadRecommendations() {
+    const res = await fetch("/recommendations", { headers: authHeaders() });
+    const data = await res.json();
+    $("#recNote").textContent = data.personalized
+      ? "Personalized for your saved interests and past trips."
+      : "Showing top-rated picks. Log in for recommendations based on your preferences and past trips.";
+    $("#recGrid").innerHTML = data.recommendations.map((d, i) => destCard(d, i)).join("");
+    bindAddButtons($("#recGrid"));
+  }
+
+  // ---------------- Auth forms ----------------
+  $("#registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = $("#regName").value.trim();
+    const email = $("#regEmail").value.trim();
+    const password = $("#regPassword").value;
+    const tags = $$("#panelRegister .tag-fieldset input:checked").map((i) => i.value);
+
+    const res = await fetch("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password, preferred_tags: tags }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      $("#regError").textContent = data.error || "Something went wrong.";
+      return;
+    }
+    onAuthSuccess(data);
+  });
+
+  $("#loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = $("#loginEmail").value.trim();
+    const password = $("#loginPassword").value;
+    const res = await fetch("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      $("#loginError").textContent = data.error || "Invalid credentials.";
+      return;
+    }
+    onAuthSuccess(data);
+  });
+
+  function onAuthSuccess(data) {
+    state.token = data.token;
+    state.user = data.user;
+    localStorage.setItem("gt_token", state.token);
+    localStorage.setItem("gt_user", JSON.stringify(state.user));
+    closeModal();
+    renderNavAuth();
+    toast(`Welcome, ${data.user.name.split(" ")[0]}!`);
+    loadRecommendations();
+    renderItinerarySection();
+    loadItineraries();
+  }
+
+  // ---------------- Itineraries ----------------
+  function renderItinerarySection() {
+    const form = $("#itinForm");
+    const note = $("#itinNote");
+    if (state.user) {
+      form.classList.remove("hidden");
+      note.textContent = "Tap \"Add to trip\" on destinations above, then save your itinerary here.";
+    } else {
+      form.classList.add("hidden");
+      note.textContent = "Log in to create an itinerary from the destinations above.";
+      $("#itinList").innerHTML = "";
+    }
+  }
+
+  $("#itinForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (state.selectedStops.size === 0) {
+      toast("Add at least one destination to your trip first.");
+      return;
+    }
+    const body = {
+      title: $("#itinTitle").value.trim(),
+      start_date: $("#itinDate").value || null,
+      notes: $("#itinNotes").value.trim(),
+      stops: [...state.selectedStops],
+    };
+    const res = await fetch("/itineraries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      toast(data.error || "Could not save itinerary.");
+      return;
+    }
+    toast("Itinerary saved!");
+    $("#itinForm").reset();
+    state.selectedStops.clear();
+    $("#selectedCount").textContent = 0;
+    renderDestinationGrid(state.destinations);
+    loadItineraries();
+  });
+
+  async function loadItineraries() {
+    if (!state.user) return;
+    const res = await fetch("/itineraries", { headers: authHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    $("#itinList").innerHTML = data.itineraries.map(itinCard).join("");
+    bindShareForms();
+  }
+
+  function itinCard(i) {
+    const stops = (i.stop_details || []).map((d) => `<span class="itin-stop-chip">${d.name}</span>`).join("");
+    return `
+      <div class="itin-card">
+        <h4>${i.title}</h4>
+        <p class="dest-area">${i.start_date ? "Starting " + i.start_date : "No date set"}${i.notes ? " · " + i.notes : ""}</p>
+        <div class="itin-stops">${stops}</div>
+        <div class="share-row">
+          <input type="email" placeholder="Share with email…" data-share="${i.id}">
+          <button class="btn btn-outline" data-share-btn="${i.id}">Share</button>
+        </div>
+      </div>`;
+  }
+
+  function bindShareForms() {
+    $$("[data-share-btn]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.shareBtn;
+        const input = document.querySelector(`[data-share="${id}"]`);
+        const email = input.value.trim();
+        if (!email) return;
+        const res = await fetch(`/itineraries/${id}/share`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authHeaders() },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        toast(res.ok ? data.message : data.error);
+        if (res.ok) input.value = "";
+      });
+    });
+  }
+
+  // ---------------- Init ----------------
+  bindOpenTriggers();
+  renderNavAuth();
+  renderItinerarySection();
+  loadDestinations().then(loadRecommendations);
+  if (state.user) loadItineraries();
+})();

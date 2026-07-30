@@ -1,16 +1,31 @@
 (() => {
   const state = {
     destinations: [],
-    selectedStops: new Set(),
+    selectedStops: new Set(JSON.parse(localStorage.getItem("gt_stops") || "[]")),
+    activeDomain: "",
     token: localStorage.getItem("gt_token") || null,
     user: JSON.parse(localStorage.getItem("gt_user") || "null"),
   };
 
+  const page = document.body.dataset.page || "home";
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
+  const DOMAINS = [
+    { id: "", label: "All" },
+    { id: "historic", label: "Historic sites" },
+    { id: "restaurant", label: "Restaurants" },
+    { id: "picnic", label: "Picnic spots" },
+    { id: "nature", label: "Nature" },
+    { id: "market", label: "Markets" },
+    { id: "culture", label: "Culture" },
+    { id: "religious", label: "Religious" },
+    { id: "sports", label: "Sports" },
+  ];
+
   function toast(msg) {
     const el = $("#toast");
+    if (!el) return;
     el.textContent = msg;
     el.classList.add("show");
     setTimeout(() => el.classList.remove("show"), 2600);
@@ -20,24 +35,44 @@
     return state.token ? { Authorization: `Bearer ${state.token}` } : {};
   }
 
-  // ---------------- Nav auth state ----------------
+  function persistStops() {
+    localStorage.setItem("gt_stops", JSON.stringify([...state.selectedStops]));
+    const count = $("#selectedCount");
+    if (count) count.textContent = state.selectedStops.size;
+  }
+
+  function initials(name) {
+    return (name || "G")
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0].toUpperCase())
+      .join("") || "G";
+  }
+
   function renderNavAuth() {
     const nav = $("#navAuth");
+    if (!nav) return;
     if (state.user) {
+      const first = state.user.name.split(" ")[0];
       nav.innerHTML = `
-        <a href="/profile" class="btn btn-ghost">Profile</a>
-        <span style="font-size:.9rem;margin:0 8px;">Hi, ${state.user.name.split(" ")[0]}</span>
-        <button class="btn btn-ghost" id="logoutBtn">Log out</button>`;
+        <a href="/profile" class="nav-user" title="Open profile">
+          <span class="nav-avatar" aria-hidden="true">${initials(state.user.name)}</span>
+          <span class="nav-user-meta">
+            <span class="nav-user-label">Profile</span>
+            <span class="nav-user-name">${first}</span>
+          </span>
+        </a>
+        <button class="btn btn-ghost nav-logout" id="logoutBtn" type="button">Log out</button>`;
       $("#logoutBtn").addEventListener("click", logout);
     } else {
       nav.innerHTML = `
-        <button class="btn btn-ghost" data-open="login">Log in</button>
-        <button class="btn btn-solid" data-open="register">Sign up</button>`;
+        <button class="btn btn-ghost" data-open="login" type="button">Log in</button>
+        <button class="btn btn-solid" data-open="register" type="button">Sign up</button>`;
       bindOpenTriggers();
     }
   }
 
-  // expose for other scripts (profile.js) to call after DOM ready
   window.renderNavAuth = renderNavAuth;
 
   function logout() {
@@ -46,21 +81,30 @@
     localStorage.removeItem("gt_token");
     localStorage.removeItem("gt_user");
     renderNavAuth();
-    loadRecommendations();
-    renderItinerarySection();
+    if (page === "home") {
+      loadRecommendations();
+      renderItinerarySection();
+    }
+    if (page === "profile") {
+      window.location.href = "/";
+      return;
+    }
     toast("Logged out");
   }
 
-  // ---------------- Modal ----------------
   function openModal(which) {
-    $("#modalBackdrop").classList.add("open");
-    $("#panelLogin").classList.toggle("hidden", which !== "login");
-    $("#panelRegister").classList.toggle("hidden", which !== "register");
+    const backdrop = $("#modalBackdrop");
+    if (!backdrop) return;
+    backdrop.classList.add("open");
+    $("#panelLogin")?.classList.toggle("hidden", which !== "login");
+    $("#panelRegister")?.classList.toggle("hidden", which !== "register");
   }
   function closeModal() {
-    $("#modalBackdrop").classList.remove("open");
-    $("#loginError").textContent = "";
-    $("#regError").textContent = "";
+    $("#modalBackdrop")?.classList.remove("open");
+    const loginError = $("#loginError");
+    const regError = $("#regError");
+    if (loginError) loginError.textContent = "";
+    if (regError) regError.textContent = "";
   }
   function bindOpenTriggers() {
     $$("[data-open]").forEach((btn) => {
@@ -70,23 +114,95 @@
       });
     });
   }
-  $("#modalClose").addEventListener("click", closeModal);
-  $("#modalBackdrop").addEventListener("click", (e) => {
+
+  $("#modalClose")?.addEventListener("click", closeModal);
+  $("#modalBackdrop")?.addEventListener("click", (e) => {
     if (e.target.id === "modalBackdrop") closeModal();
   });
 
-  // ---------------- Destinations ----------------
-  async function loadDestinations() {
-    const res = await fetch("/destinations");
-    const data = await res.json();
-    state.destinations = data.destinations;
-    populateCategoryFilter();
-    renderDestinationGrid(state.destinations);
-    renderCredits();
+  function toggleStop(id) {
+    if (state.selectedStops.has(id)) state.selectedStops.delete(id);
+    else state.selectedStops.add(id);
+    persistStops();
+    toast(state.selectedStops.has(id) ? "Added to trip" : "Removed from trip");
+  }
+
+  window.GlobeTrotter = {
+    isSelected: (id) => state.selectedStops.has(id),
+    toggleStop,
+  };
+
+  function destCard(d, idx) {
+    const added = state.selectedStops.has(d.id);
+    return `
+      <article class="dest-card" style="animation-delay:${idx * 0.05}s">
+        <a class="dest-card-link" href="/place/${d.id}" aria-label="Open ${d.name}">
+          <div class="dest-photo">
+            <img src="${d.image}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
+            <span class="dest-rating">★ ${d.rating}</span>
+          </div>
+          <div class="dest-body">
+            <span class="dest-cat">${d.category}</span>
+            <h3>${d.name}</h3>
+            <p class="dest-area">${d.area}</p>
+            <p class="dest-desc">${d.description}</p>
+          </div>
+        </a>
+        <div class="dest-actions">
+          <span class="dest-credit">📷 ${d.credit}</span>
+          <button class="add-btn ${added ? "added" : ""}" type="button" data-id="${d.id}">
+            ${added ? "Added ✓" : "Add to trip"}
+          </button>
+        </div>
+      </article>`;
+  }
+
+  function bindAddButtons(scopeEl) {
+    if (!scopeEl) return;
+    scopeEl.querySelectorAll(".add-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        toggleStop(id);
+        const selected = state.selectedStops.has(id);
+        btn.classList.toggle("added", selected);
+        btn.textContent = selected ? "Added ✓" : "Add to trip";
+      });
+    });
+  }
+
+  function renderDestinationGrid(list) {
+    const grid = $("#destinationGrid");
+    if (!grid) return;
+    grid.innerHTML = list.length
+      ? list.map((d, i) => destCard(d, i)).join("")
+      : `<p class="loading">No places match this category yet.</p>`;
+    bindAddButtons(grid);
+  }
+
+  function renderCategoryChips() {
+    const bar = $("#categoryChips");
+    if (!bar) return;
+    bar.innerHTML = DOMAINS.map(
+      (d) => `
+      <button type="button" class="cat-chip ${state.activeDomain === d.id ? "is-active" : ""}" data-domain="${d.id}">
+        ${d.label}
+      </button>`
+    ).join("");
+    bar.querySelectorAll(".cat-chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.activeDomain = btn.dataset.domain;
+        renderCategoryChips();
+        filterDestinations();
+        document.getElementById("destinations")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
   }
 
   function populateCategoryFilter() {
     const select = $("#categorySelect");
+    if (!select) return;
     const categories = [...new Set(state.destinations.map((d) => d.category))];
     categories.forEach((c) => {
       const opt = document.createElement("option");
@@ -96,87 +212,58 @@
     });
   }
 
-  function destCard(d, idx) {
-    const added = state.selectedStops.has(d.id);
-    return `
-      <article class="dest-card" style="animation-delay:${idx * 0.06}s">
-        <div class="dest-photo">
-          <img src="${d.image}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
-          <span class="dest-rating">★ ${d.rating}</span>
-        </div>
-        <div class="dest-body">
-          <span class="dest-cat">${d.category}</span>
-          <h3>${d.name}</h3>
-          <p class="dest-area">${d.area}</p>
-          <p class="dest-desc">${d.description}</p>
-          <div class="dest-actions">
-            <span class="dest-credit">📷 ${d.credit}</span>
-            <button class="add-btn ${added ? "added" : ""}" data-id="${d.id}">
-              ${added ? "Added ✓" : "Add to trip"}
-            </button>
-          </div>
-        </div>
-      </article>`;
-  }
-
-  function renderDestinationGrid(list) {
-    const grid = $("#destinationGrid");
-    grid.innerHTML = list.length
-      ? list.map((d, i) => destCard(d, i)).join("")
-      : `<p class="loading">No destinations match your search.</p>`;
-    bindAddButtons(grid);
-  }
-
-  function bindAddButtons(scopeEl) {
-    scopeEl.querySelectorAll(".add-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = btn.dataset.id;
-        if (state.selectedStops.has(id)) {
-          state.selectedStops.delete(id);
-          btn.classList.remove("added");
-          btn.textContent = "Add to trip";
-        } else {
-          state.selectedStops.add(id);
-          btn.classList.add("added");
-          btn.textContent = "Added ✓";
-        }
-        $("#selectedCount").textContent = state.selectedStops.size;
-      });
-    });
-  }
-
-  function renderCredits() {
-    const unique = [...new Set(state.destinations.map((d) => d.credit))];
-    $("#creditsList").textContent = `Destination photography: ${unique.join(", ")}.`;
-  }
-
-  $("#searchInput").addEventListener("input", filterDestinations);
-  $("#categorySelect").addEventListener("change", filterDestinations);
-
   function filterDestinations() {
-    const q = $("#searchInput").value.trim().toLowerCase();
-    const cat = $("#categorySelect").value;
+    const search = $("#searchInput");
+    const select = $("#categorySelect");
+    const q = (search?.value || "").trim().toLowerCase();
+    const cat = select?.value || "";
     const filtered = state.destinations.filter((d) => {
-      const matchQ = !q || d.name.toLowerCase().includes(q) || d.area.toLowerCase().includes(q) || d.tags.some((t) => t.includes(q));
+      const matchQ =
+        !q ||
+        d.name.toLowerCase().includes(q) ||
+        d.area.toLowerCase().includes(q) ||
+        (d.domain || "").toLowerCase().includes(q) ||
+        d.tags.some((t) => t.includes(q));
       const matchCat = !cat || d.category === cat;
-      return matchQ && matchCat;
+      const matchDomain = !state.activeDomain || d.domain === state.activeDomain;
+      return matchQ && matchCat && matchDomain;
     });
     renderDestinationGrid(filtered);
   }
 
-  // ---------------- Recommendations ----------------
-  async function loadRecommendations() {
-    const res = await fetch("/recommendations", { headers: authHeaders() });
-    const data = await res.json();
-    $("#recNote").textContent = data.personalized
-      ? "Personalized for your saved interests and past trips."
-      : "Showing top-rated picks. Log in for recommendations based on your preferences and past trips.";
-    $("#recGrid").innerHTML = data.recommendations.map((d, i) => destCard(d, i)).join("");
-    bindAddButtons($("#recGrid"));
+  function renderCredits() {
+    const el = $("#creditsList");
+    if (!el) return;
+    const unique = [...new Set(state.destinations.map((d) => d.credit))];
+    el.textContent = `Destination photography: ${unique.join(", ")}.`;
   }
 
-  // ---------------- Auth forms ----------------
-  $("#registerForm").addEventListener("submit", async (e) => {
+  async function loadDestinations() {
+    const res = await fetch("/destinations");
+    const data = await res.json();
+    state.destinations = data.destinations;
+    populateCategoryFilter();
+    renderCategoryChips();
+    filterDestinations();
+    renderCredits();
+  }
+
+  async function loadRecommendations() {
+    const note = $("#recNote");
+    const grid = $("#recGrid");
+    if (!grid) return;
+    const res = await fetch("/recommendations", { headers: authHeaders() });
+    const data = await res.json();
+    if (note) {
+      note.textContent = data.personalized
+        ? "Personalized for your saved interests and past trips."
+        : "Showing top-rated picks. Log in for recommendations based on your preferences and past trips.";
+    }
+    grid.innerHTML = data.recommendations.map((d, i) => destCard(d, i)).join("");
+    bindAddButtons(grid);
+  }
+
+  $("#registerForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const name = $("#regName").value.trim();
     const email = $("#regEmail").value.trim();
@@ -196,7 +283,7 @@
     onAuthSuccess(data);
   });
 
-  $("#loginForm").addEventListener("submit", async (e) => {
+  $("#loginForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = $("#loginEmail").value.trim();
     const password = $("#loginPassword").value;
@@ -221,26 +308,29 @@
     closeModal();
     renderNavAuth();
     toast(`Welcome, ${data.user.name.split(" ")[0]}!`);
-    loadRecommendations();
-    renderItinerarySection();
-    loadItineraries();
-  }
-
-  // ---------------- Itineraries ----------------
-  function renderItinerarySection() {
-    const form = $("#itinForm");
-    const note = $("#itinNote");
-    if (state.user) {
-      form.classList.remove("hidden");
-      note.textContent = "Tap \"Add to trip\" on destinations above, then save your itinerary here.";
-    } else {
-      form.classList.add("hidden");
-      note.textContent = "Log in to create an itinerary from the destinations above.";
-      $("#itinList").innerHTML = "";
+    if (page === "home") {
+      loadRecommendations();
+      renderItinerarySection();
+      loadItineraries();
     }
   }
 
-  $("#itinForm").addEventListener("submit", async (e) => {
+  function renderItinerarySection() {
+    const form = $("#itinForm");
+    const note = $("#itinNote");
+    if (!form || !note) return;
+    if (state.user) {
+      form.classList.remove("hidden");
+      note.textContent = 'Tap "Add to trip" on destinations, then save your itinerary here.';
+    } else {
+      form.classList.add("hidden");
+      note.textContent = "Log in to create an itinerary from the destinations above.";
+      const list = $("#itinList");
+      if (list) list.innerHTML = "";
+    }
+  }
+
+  $("#itinForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (state.selectedStops.size === 0) {
       toast("Add at least one destination to your trip first.");
@@ -265,13 +355,13 @@
     toast("Itinerary saved!");
     $("#itinForm").reset();
     state.selectedStops.clear();
-    $("#selectedCount").textContent = 0;
-    renderDestinationGrid(state.destinations);
+    persistStops();
+    filterDestinations();
     loadItineraries();
   });
 
   async function loadItineraries() {
-    if (!state.user) return;
+    if (!state.user || !$("#itinList")) return;
     const res = await fetch("/itineraries", { headers: authHeaders() });
     if (!res.ok) return;
     const data = await res.json();
@@ -288,7 +378,7 @@
         <div class="itin-stops">${stops}</div>
         <div class="share-row">
           <input type="email" placeholder="Share with email…" data-share="${i.id}">
-          <button class="btn btn-outline" data-share-btn="${i.id}">Share</button>
+          <button class="btn btn-outline" data-share-btn="${i.id}" type="button">Share</button>
         </div>
       </div>`;
   }
@@ -312,10 +402,17 @@
     });
   }
 
-  // ---------------- Init ----------------
+  $("#searchInput")?.addEventListener("input", filterDestinations);
+  $("#categorySelect")?.addEventListener("change", filterDestinations);
+
   bindOpenTriggers();
   renderNavAuth();
-  renderItinerarySection();
-  loadDestinations().then(loadRecommendations);
-  if (state.user) loadItineraries();
+  persistStops();
+
+  if (page === "home") {
+    renderCategoryChips();
+    renderItinerarySection();
+    loadDestinations().then(loadRecommendations);
+    if (state.user) loadItineraries();
+  }
 })();

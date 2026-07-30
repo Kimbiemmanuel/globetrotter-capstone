@@ -7,71 +7,93 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <meta name="description" content="Your Globe Trotter profile: account, preferences, visited places and itineraries.">
 </head>
-<body>
+<body data-page="profile">
   <nav class="topnav">
     <div class="nav-inner">
-      <a href="/" class="brand">Globe<em>Trotter</em></a>
+      <a href="/" class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="27" fill="currentColor" opacity="0.16"></circle>
+            <path d="M20 25l16 6-5 5 6 7-7 4-5-7-6 5 1-20z" fill="currentColor"></path>
+          </svg>
+        </span>
+        Globe<em>Trotter</em>
+      </a>
       <div class="nav-links">
         <a href="/">Home</a>
-        <a href="#">Destinations</a>
+        <a href="/#destinations">Destinations</a>
+        <a href="/#itineraries">My trips</a>
       </div>
       <div class="nav-auth" id="navAuth"></div>
     </div>
   </nav>
 
-  <main class="section">
-    <div class="section-head">
-      <h2>Your profile</h2>
-      <p class="section-note">Manage your account, interests, and view trips and visited places.</p>
+  <header class="profile-hero">
+    <div class="profile-hero-inner">
+      <div class="profile-avatar" id="profileAvatar">GT</div>
+      <div>
+        <p class="eyebrow">Traveller profile</p>
+        <h1 id="profileHeroName">Your profile</h1>
+        <p class="profile-hero-sub" id="profileHeroEmail">Sign in to manage trips and interests across Yaoundé.</p>
+      </div>
     </div>
+  </header>
 
-    <section class="profile-grid">
-      <div class="profile-card">
-        <h3>Account</h3>
-        <form id="profileForm">
+  <main class="profile-shell">
+    <aside class="profile-side">
+      <section class="profile-panel">
+        <h2>Account</h2>
+        <p class="section-note">Update how you appear and what you love to explore.</p>
+        <form id="profileForm" class="profile-form">
           <label>Full name
             <input type="text" id="profileName" required>
           </label>
           <label>Email
             <input type="email" id="profileEmail" disabled>
           </label>
-          <label>New password (leave blank to keep current)
-            <input type="password" id="profilePassword" minlength="6">
+          <label>New password
+            <input type="password" id="profilePassword" minlength="6" placeholder="Leave blank to keep current">
           </label>
           <fieldset class="tag-fieldset">
-            <legend>Interests</legend>
+            <legend>Travel interests</legend>
             <label><input type="checkbox" value="history" class="pref-tag"> History</label>
             <label><input type="checkbox" value="nature" class="pref-tag"> Nature</label>
             <label><input type="checkbox" value="culture" class="pref-tag"> Culture</label>
             <label><input type="checkbox" value="food" class="pref-tag"> Food</label>
             <label><input type="checkbox" value="family" class="pref-tag"> Family</label>
           </fieldset>
-          <button class="btn btn-solid" type="submit">Save profile</button>
+          <button class="btn btn-solid btn-block" type="submit">Save changes</button>
         </form>
         <div id="profileMsg" class="form-error"></div>
-      </div>
+      </section>
+    </aside>
 
-      <div class="profile-card">
-        <h3>Your trips</h3>
-        <div id="profileItins">Loading…</div>
-      </div>
+    <section class="profile-main">
+      <section class="profile-panel">
+        <div class="profile-panel-head">
+          <h2>Your trips</h2>
+          <a class="btn btn-ghost" href="/#itineraries">Plan a trip</a>
+        </div>
+        <div id="profileItins" class="profile-trip-list">Loading…</div>
+      </section>
 
-      <div class="profile-card">
-        <h3>Visited places</h3>
-        <div id="profileVisited">Loading…</div>
-      </div>
+      <section class="profile-panel">
+        <div class="profile-panel-head">
+          <h2>Visited places</h2>
+          <a class="btn btn-ghost" href="/#destinations">Explore more</a>
+        </div>
+        <div id="profileVisited" class="profile-visited-grid">Loading…</div>
+      </section>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="footer-inner"><div><strong>Globe Trotter</strong></div></div>
+    <div class="footer-inner"><div><strong>Globe Trotter</strong> — Yaoundé travel companion.</div></div>
   </footer>
 
-  <!-- Auth Modal (shared with main) -->
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal">
       <button class="modal-close" id="modalClose" aria-label="Close">×</button>
-
       <div class="modal-panel" id="panelLogin">
         <h3>Welcome back</h3>
         <form id="loginForm">
@@ -82,7 +104,6 @@
         <p class="modal-switch">New here? <a href="#" data-open="register">Create an account</a></p>
         <p class="form-error" id="loginError"></p>
       </div>
-
       <div class="modal-panel hidden" id="panelRegister">
         <h3>Create your account</h3>
         <form id="registerForm">
@@ -107,8 +128,7 @@
 
   <div class="toast" id="toast"></div>
 
-  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 </body>
 </html>
-

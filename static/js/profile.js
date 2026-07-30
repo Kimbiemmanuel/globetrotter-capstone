@@ -1,73 +1,115 @@
-(function () {
-  const token = localStorage.getItem('gt_token');
-  const user = JSON.parse(localStorage.getItem('gt_user') || 'null');
-  const authHeaders = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : {};
+(() => {
+  const token = localStorage.getItem("gt_token");
+  const user = JSON.parse(localStorage.getItem("gt_user") || "null");
 
-  const $ = (s) => document.querySelector(s);
-  const $$ = (s) => Array.from(document.querySelectorAll(s));
+  if (!token || !user) {
+    window.location.href = "/";
+    return;
+  }
 
-  function toast(msg) {
-    const el = document.getElementById('toast');
-    if (el) { el.textContent = msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2500); }
+  const $ = (sel) => document.querySelector(sel);
+
+  function initials(name) {
+    return (name || "G")
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0].toUpperCase())
+      .join("") || "G";
+  }
+
+  function fillHero(u) {
+    $("#profileAvatar").textContent = initials(u.name);
+    $("#profileHeroName").textContent = u.name;
+    $("#profileHeroEmail").textContent = u.email;
   }
 
   async function loadProfile() {
-    if (!token) {
-      document.getElementById('profileMsg').textContent = 'Please log in to manage your profile.';
-      return;
-    }
-    const res = await fetch('/api/me', { headers: authHeaders });
+    const res = await fetch("/api/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
     if (!res.ok) {
-      document.getElementById('profileMsg').textContent = 'Could not load profile.';
+      localStorage.removeItem("gt_token");
+      localStorage.removeItem("gt_user");
+      window.location.href = "/";
       return;
     }
     const data = await res.json();
     const u = data.user;
-    $('#profileName').value = u.name || '';
-    $('#profileEmail').value = u.email || '';
+    fillHero(u);
+    $("#profileName").value = u.name || "";
+    $("#profileEmail").value = u.email || "";
+    document.querySelectorAll(".pref-tag").forEach((cb) => {
+      cb.checked = (u.preferences?.tags || []).includes(cb.value);
+    });
 
-    // tags
-    const tags = (u.preferences && u.preferences.tags) || [];
-    $$('.pref-tag').forEach((chk) => { chk.checked = tags.includes(chk.value); });
-
-    // itineraries
     const itins = data.itineraries || [];
-    $('#profileItins').innerHTML = itins.length ? itins.map(i => `
-      <div class="itin-card"><strong>${i.title}</strong><div class="itin-stops">${(i.stop_details||[]).map(d=>d.name).join(', ')}</div></div>
-    `).join('') : '<p>No trips yet.</p>';
+    $("#profileItins").innerHTML = itins.length
+      ? itins
+          .map(
+            (i) => `
+        <article class="profile-trip">
+          <div>
+            <h3>${i.title}</h3>
+            <p>${i.start_date || "No date"} · ${(i.stop_details || []).length} stops</p>
+          </div>
+          <div class="itin-stops">
+            ${(i.stop_details || [])
+              .map((d) => `<a class="itin-stop-chip" href="/place/${d.id}">${d.name}</a>`)
+              .join("")}
+          </div>
+        </article>`
+          )
+          .join("")
+      : `<p class="empty-state">No trips yet. Browse destinations and tap <strong>Add to trip</strong>.</p>`;
 
-    // visited
     const visited = data.visited || [];
-    $('#profileVisited').innerHTML = visited.length ? visited.map(d=>`<div class="visited-card"><img src="${d.image}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg'"/><div><strong>${d.name}</strong><p class="dest-area">${d.area}</p></div></div>`).join('') : '<p>No visited places recorded.</p>';
+    $("#profileVisited").innerHTML = visited.length
+      ? visited
+          .map(
+            (d) => `
+        <a class="profile-visited-card" href="/place/${d.id}">
+          <img src="${d.image}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
+          <div>
+            <strong>${d.name}</strong>
+            <p>${d.area || ""}</p>
+          </div>
+        </a>`
+          )
+          .join("")
+      : `<p class="empty-state">Places from completed trips will show up here.</p>`;
   }
 
-  $('#profileForm').addEventListener('submit', async (e)=>{
+  $("#profileForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!token) { toast('Log in first'); return; }
-    const name = $('#profileName').value.trim();
-    const password = $('#profilePassword').value || null;
-    const tags = $$('.pref-tag').filter(c=>c.checked).map(c=>c.value);
-
+    const name = $("#profileName").value.trim();
+    const password = $("#profilePassword").value;
+    const tags = Array.from(document.querySelectorAll(".pref-tag:checked")).map((i) => i.value);
     const body = { name, preferences: { tags } };
     if (password) body.password = password;
 
-    const res = await fetch('/api/me', { method: 'PUT', headers: authHeaders, body: JSON.stringify(body) });
+    const res = await fetch("/api/me", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
     const data = await res.json();
+    const msg = $("#profileMsg");
     if (!res.ok) {
-      $('#profileMsg').textContent = data.error || 'Could not update profile.';
+      msg.textContent = data.error || "Could not update profile.";
       return;
     }
-    // update local user name
-    const localUser = JSON.parse(localStorage.getItem('gt_user')||'null');
-    if (localUser) { localUser.name = data.user.name; localStorage.setItem('gt_user', JSON.stringify(localUser)); }
-    toast('Profile saved');
-    $('#profilePassword').value = '';
+    msg.style.color = "var(--success)";
+    msg.textContent = "Profile saved.";
+    localStorage.setItem("gt_user", JSON.stringify({ ...user, name: data.user.name, email: data.user.email }));
+    fillHero(data.user);
+    if (window.renderNavAuth) window.renderNavAuth();
+    $("#profilePassword").value = "";
   });
 
-  // render nav auth using main.js capabilities when available
-  document.addEventListener('DOMContentLoaded', ()=>{
-    // delegate to main.js renderNavAuth if it exists
-    if (window.renderNavAuth) window.renderNavAuth();
-    loadProfile();
-  });
+  fillHero(user);
+  loadProfile();
 })();

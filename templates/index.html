@@ -7,7 +7,7 @@
 <meta name="description" content="Explore iconic Yaoundé landmarks, curated touristic spots, and shareable travel plans in a polished travel companion experience.">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
+<body data-page="home">
 
 <nav class="topnav">
   <div class="nav-inner">
@@ -29,6 +29,9 @@
       <button class="btn btn-ghost" data-open="login">Log in</button>
       <button class="btn btn-solid" data-open="register">Sign up</button>
     </div>
+  </div>
+  <div class="category-bar" aria-label="Browse by interest">
+    <div class="category-bar-inner" id="categoryChips"></div>
   </div>
 </nav>
 
@@ -68,8 +71,9 @@
 
   <section class="section" id="destinations">
     <div class="section-head">
-      <p class="eyebrow">Real places, real photos</p>
-      <h2>Begin with places that feel unforgettable</h2>
+      <p class="eyebrow">Real places across Yaoundé</p>
+      <h2>Browse by what you love</h2>
+      <p class="section-note">Use the category bar under the menu, or search below. Tap any card for photos, history, and directions.</p>
       <div class="filter-bar">
         <input type="search" id="searchInput" placeholder="Search destinations, areas, or interests…">
         <select id="categorySelect">
@@ -151,6 +155,7 @@
           <label><input type="checkbox" value="culture"> Culture</label>
           <label><input type="checkbox" value="food"> Food</label>
           <label><input type="checkbox" value="family"> Family</label>
+          <label><input type="checkbox" value="picnic"> Picnic</label>
         </fieldset>
         <button type="submit" class="btn btn-solid btn-block">Sign up</button>
       </form>

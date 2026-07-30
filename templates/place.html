@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if destination %}{{ destination.name }} — Globe Trotter{% else %}Place not found{% endif %}</title>
+<meta name="description" content="{% if destination %}{{ destination.description }}{% else %}Destination not found{% endif %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body data-page="place" data-dest-id="{{ dest_id }}">
+
+<nav class="topnav">
+  <div class="nav-inner">
+    <a href="/" class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="27" fill="currentColor" opacity="0.16"></circle>
+          <path d="M20 25l16 6-5 5 6 7-7 4-5-7-6 5 1-20z" fill="currentColor"></path>
+        </svg>
+      </span>
+      Globe<em>Trotter</em>
+    </a>
+    <div class="nav-links">
+      <a href="/#destinations">Destinations</a>
+      <a href="/#recommendations">For you</a>
+      <a href="/#itineraries">My trips</a>
+    </div>
+    <div class="nav-auth" id="navAuth"></div>
+  </div>
+</nav>
+
+{% if destination %}
+<header class="place-hero">
+  <img id="placeHeroImg" src="{{ destination.image }}" alt="{{ destination.name }}" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
+  <div class="place-hero-overlay">
+    <a href="/#destinations" class="place-back">← Back to destinations</a>
+    <span class="dest-cat">{{ destination.category }}</span>
+    <h1>{{ destination.name }}</h1>
+    <p class="place-local">{{ destination.local_name }} · {{ destination.area }}</p>
+    <p class="place-rating">★ {{ destination.rating }}</p>
+  </div>
+</header>
+
+<main class="place-layout">
+  <section class="place-main">
+    <div class="place-gallery" id="placeGallery">
+      {% for img in destination.gallery|default([destination.image]) %}
+      <button type="button" class="gallery-thumb{% if loop.first %} is-active{% endif %}" data-src="{{ img }}">
+        <img src="{{ img }}" alt="View of {{ destination.name }}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
+      </button>
+      {% endfor %}
+    </div>
+
+    <article class="place-story">
+      <h2>About this place</h2>
+      <p class="place-lead">{{ destination.description }}</p>
+      <p>{{ destination.long_description or destination.description }}</p>
+      <p class="dest-credit">📷 {{ destination.credit }}</p>
+      <div class="place-actions">
+        <button class="btn btn-solid" id="placeAddBtn" data-id="{{ destination.id }}">Add to trip</button>
+        <a class="btn btn-outline place-outline" href="/#itineraries">View my trips</a>
+      </div>
+    </article>
+  </section>
+
+  <aside class="place-aside">
+    <div class="place-map-card">
+      <h3>Find your way</h3>
+      <p class="section-note" id="travelInfo">Allow location access to see distance and travel time from where you are.</p>
+      <div id="placeMap" class="place-map" role="img" aria-label="Map of {{ destination.name }}"></div>
+      <button class="btn btn-ghost btn-block" id="locateBtn" type="button">Use my location</button>
+      <a class="btn btn-outline btn-block place-outline" id="openMapsLink" target="_blank" rel="noopener"
+         href="https://www.openstreetmap.org/?mlat={{ destination.lat }}&mlon={{ destination.lng }}#map=15/{{ destination.lat }}/{{ destination.lng }}">
+        Open in OpenStreetMap
+      </a>
+    </div>
+    <div class="place-meta-card">
+      <h3>Details</h3>
+      <dl class="place-meta">
+        <div><dt>Area</dt><dd>{{ destination.area }}</dd></div>
+        <div><dt>Category</dt><dd>{{ destination.category }}</dd></div>
+        <div><dt>Interests</dt><dd>{{ destination.tags|join(', ') }}</dd></div>
+      </dl>
+    </div>
+  </aside>
+</main>
+
+<script>
+  window.__PLACE__ = {{ destination|tojson }};
+</script>
+{% else %}
+<main class="section">
+  <div class="section-head">
+    <h2>Place not found</h2>
+    <p class="section-note">That destination is not in our Yaoundé guide.</p>
+    <a class="btn btn-solid" href="/#destinations">Browse destinations</a>
+  </div>
+</main>
+{% endif %}
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div><strong>Globe Trotter</strong> — Yaoundé travel companion.</div>
+  </div>
+</footer>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+    <div class="modal-panel" id="panelLogin">
+      <h3>Welcome back</h3>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit" class="btn btn-solid btn-block">Log in</button>
+      </form>
+      <p class="modal-switch">New here? <a href="#" data-open="register">Create an account</a></p>
+      <p class="form-error" id="loginError"></p>
+    </div>
+    <div class="modal-panel hidden" id="panelRegister">
+      <h3>Create your account</h3>
+      <form id="registerForm">
+        <input type="text" id="regName" placeholder="Full name" required>
+        <input type="email" id="regEmail" placeholder="Email" required>
+        <input type="password" id="regPassword" placeholder="Password (min. 6 characters)" required minlength="6">
+        <fieldset class="tag-fieldset">
+          <legend>What do you like?</legend>
+          <label><input type="checkbox" value="history"> History</label>
+          <label><input type="checkbox" value="nature"> Nature</label>
+          <label><input type="checkbox" value="culture"> Culture</label>
+          <label><input type="checkbox" value="food"> Food</label>
+          <label><input type="checkbox" value="family"> Family</label>
+        </fieldset>
+        <button type="submit" class="btn btn-solid btn-block">Sign up</button>
+      </form>
+      <p class="modal-switch">Already have an account? <a href="#" data-open="login">Log in</a></p>
+      <p class="form-error" id="regError"></p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/place.js') }}"></script>
+</body>
+</html>

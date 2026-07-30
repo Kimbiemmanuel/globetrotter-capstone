@@ -331,6 +331,76 @@ def health():
     return jsonify({"status": "ok", "phase": "1-monolith", "city": "Yaoundé"})
 
 
+# --------------------------------------------------------------------------
+# Routes: user profile (API)
+# --------------------------------------------------------------------------
+
+
+@app.route("/api/me", methods=["GET"])
+@require_auth
+def api_get_me():
+    users = get_users()
+    user = next((u for u in users if u["id"] == request.user_id), None)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Expose safe user info (no password hash)
+    user_public = {
+        "id": user["id"],
+        "name": user.get("name"),
+        "email": user.get("email"),
+        "preferences": user.get("preferences", {}),
+        "created_at": user.get("created_at"),
+    }
+
+    # include user's itineraries and visited destination details
+    itins = [i for i in get_itineraries() if i.get("user_id") == user["id"] or user["email"] in i.get("shared_with", [])]
+    dest_lookup = {d["id"]: d for d in get_destinations()}
+    for i in itins:
+        i["stop_details"] = [dest_lookup[s] for s in i.get("stops", []) if s in dest_lookup]
+
+    visited = [dest_lookup[d] for d in user.get("preferences", {}).get("visited", []) if d in dest_lookup]
+
+    return jsonify({"user": user_public, "itineraries": itins, "visited": visited})
+
+
+@app.route("/api/me", methods=["PUT"])
+@require_auth
+def api_update_me():
+    body = request.get_json(silent=True) or {}
+    name = body.get("name")
+    prefs = body.get("preferences")
+    new_password = body.get("password")
+
+    users = get_users()
+    user = next((u for u in users if u["id"] == request.user_id), None)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    changed = False
+    if name and name.strip() and name.strip() != user.get("name"):
+        user["name"] = name.strip()
+        changed = True
+
+    if isinstance(prefs, dict):
+        # only allow updating tags here (visited should be managed by itineraries)
+        tags = prefs.get("tags")
+        if isinstance(tags, list):
+            user.setdefault("preferences", {})["tags"] = tags
+            changed = True
+
+    if new_password:
+        if len(new_password) < 6:
+            return jsonify({"error": "password must be at least 6 characters"}), 400
+        user["password_hash"] = generate_password_hash(new_password)
+        changed = True
+
+    if changed:
+        save_users(users)
+
+    return jsonify({"message": "Profile updated", "user": {"id": user["id"], "name": user.get("name"), "email": user.get("email"), "preferences": user.get("preferences", {})}})
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)

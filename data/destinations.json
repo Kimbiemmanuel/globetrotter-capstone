@@ -5,11 +5,16 @@
     "local_name": "Monument I Love Cameroon",
     "area": "Centre-ville, Yaoundé",
     "category": "Monument & History",
-    "tags": ["history", "landmark", "city", "culture"],
+    "tags": [
+      "history",
+      "landmark",
+      "city",
+      "culture"
+    ],
     "rating": 4.8,
     "description": "A bold symbol of national pride in the heart of Yaoundé, and a memorable starting point for any Cameroon visit.",
-    "image": "https://images.unsplash.com/photo-1582719478185-1cf85a23137e?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/d1.jpg",
+    "credit": "Wikimedia Commons"
   },
   {
     "id": "d2",
@@ -17,11 +22,15 @@
     "local_name": "Monument de la Réunification",
     "area": "Atemengue Plateau, Yaoundé",
     "category": "Monument & History",
-    "tags": ["history", "architecture", "landmark"],
+    "tags": [
+      "history",
+      "architecture",
+      "landmark"
+    ],
     "rating": 4.7,
     "description": "A spiralling landmark commemorating Cameroon’s reunification, offering panoramic views over the city.",
-    "image": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/d2.JPG",
+    "credit": "Wikimedia Commons"
   },
   {
     "id": "d3",
@@ -29,11 +38,15 @@
     "local_name": "Cathédrale Notre-Dame des Victoires",
     "area": "Centre-ville, Yaoundé",
     "category": "Religious Site",
-    "tags": ["religion", "architecture", "culture"],
+    "tags": [
+      "religion",
+      "architecture",
+      "culture"
+    ],
     "rating": 4.7,
     "description": "A striking cathedral and one of Yaoundé’s most photographed landmarks, admired for its modern silhouette.",
-    "image": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/d3.jpg",
+    "credit": "Wikimedia Commons"
   },
   {
     "id": "d4",
@@ -41,11 +54,15 @@
     "local_name": "Basilique Marie-Reine des Apôtres de Mvolyé",
     "area": "Mvolyé Hill, Yaoundé",
     "category": "Religious Site",
-    "tags": ["religion", "viewpoint", "history"],
+    "tags": [
+      "religion",
+      "viewpoint",
+      "history"
+    ],
     "rating": 4.6,
     "description": "Perched above the capital, this basilica is known for dramatic views and serene architecture.",
-    "image": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/yaounde-fallback.svg",
+    "credit": "Local fallback"
   },
   {
     "id": "d5",
@@ -53,11 +70,16 @@
     "local_name": "Jardin Zoo-Botanique de Mvog-Betsi",
     "area": "Mvog-Betsi, Yaoundé",
     "category": "Nature & Wildlife",
-    "tags": ["family", "nature", "wildlife", "outdoors"],
+    "tags": [
+      "family",
+      "nature",
+      "wildlife",
+      "outdoors"
+    ],
     "rating": 4.5,
     "description": "A green urban retreat where wildlife, shaded paths, and botanical gardens make for a relaxing day out.",
-    "image": "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/d5.jpg",
+    "credit": "Wikimedia Commons"
   },
   {
     "id": "d6",
@@ -65,11 +87,16 @@
     "local_name": "Marché Central de Yaoundé",
     "area": "Centre-ville, Yaoundé",
     "category": "Markets & Culture",
-    "tags": ["shopping", "culture", "food", "local"],
+    "tags": [
+      "shopping",
+      "culture",
+      "food",
+      "local"
+    ],
     "rating": 4.4,
     "description": "A bustling market full of fabrics, spices, crafts and local street food—an authentic taste of Yaoundé life.",
-    "image": "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/d6.JPG",
+    "credit": "Wikimedia Commons"
   },
   {
     "id": "d7",
@@ -77,11 +104,15 @@
     "local_name": "Sommet de Mont Fébé",
     "area": "Mont Fébé, Yaoundé",
     "category": "Adventure & Outdoors",
-    "tags": ["hiking", "viewpoint", "nature"],
+    "tags": [
+      "hiking",
+      "viewpoint",
+      "nature"
+    ],
     "rating": 4.6,
     "description": "A scenic escape with fresh air, green ridges, and one of the best elevated viewpoints over the capital.",
-    "image": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/yaounde-fallback.svg",
+    "credit": "Local fallback"
   },
   {
     "id": "d8",
@@ -89,11 +120,16 @@
     "local_name": "Palais des Congrès de Yaoundé",
     "area": "Yaoundé, Centre Region",
     "category": "Events & Culture",
-    "tags": ["events", "culture", "architecture", "city"],
+    "tags": [
+      "events",
+      "culture",
+      "architecture",
+      "city"
+    ],
     "rating": 4.3,
     "description": "A central cultural venue where exhibitions, concerts and national events bring Yaoundé to life.",
-    "image": "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/d8.jpg",
+    "credit": "Wikimedia Commons"
   },
   {
     "id": "d9",
@@ -101,11 +137,16 @@
     "local_name": "Musée National du Cameroun",
     "area": "Yaoundé, Centre Region",
     "category": "Museums & History",
-    "tags": ["history", "culture", "education", "art"],
+    "tags": [
+      "history",
+      "culture",
+      "education",
+      "art"
+    ],
     "rating": 4.4,
     "description": "A cultural landmark for learning about Cameroon’s heritage, traditional art, and historic collections.",
-    "image": "https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/d9.JPG",
+    "credit": "Wikimedia Commons"
   },
   {
     "id": "d10",
@@ -113,11 +154,16 @@
     "local_name": "Place du 20 Mai",
     "area": "Centre-ville, Yaoundé",
     "category": "City & Views",
-    "tags": ["city", "walking", "food", "culture"],
+    "tags": [
+      "city",
+      "walking",
+      "food",
+      "culture"
+    ],
     "rating": 4.3,
     "description": "A busy city square that showcases local life, street vendors, and Yaoundé’s downtown energy.",
-    "image": "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/yaounde-fallback.svg",
+    "credit": "Local fallback"
   },
   {
     "id": "d11",
@@ -125,11 +171,16 @@
     "local_name": "Lake Municipal de Yaoundé",
     "area": "Centre-ville, Yaoundé",
     "category": "Nature & Leisure",
-    "tags": ["lake", "walking", "nature", "relax"],
+    "tags": [
+      "lake",
+      "walking",
+      "nature",
+      "relax"
+    ],
     "rating": 4.4,
     "description": "A peaceful urban lake where residents and visitors stroll, relax, and enjoy a quiet moment in the city.",
-    "image": "https://images.unsplash.com/photo-1452719726004-c4f9b4767f12?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/d11.jpg",
+    "credit": "Wikimedia Commons"
   },
   {
     "id": "d12",
@@ -137,10 +188,15 @@
     "local_name": "Stade Omnisports",
     "area": "Mbankomo, Yaoundé",
     "category": "Sports & Culture",
-    "tags": ["stadium", "events", "culture", "sports"],
+    "tags": [
+      "stadium",
+      "events",
+      "culture",
+      "sports"
+    ],
     "rating": 4.3,
     "description": "Yaoundé’s biggest stadium and a landmark for football, concerts, and national events.",
-    "image": "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=900&q=80",
-    "credit": "Unsplash"
+    "image": "/static/images/d12.jpg",
+    "credit": "Wikimedia Commons"
   }
 ]

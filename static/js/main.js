@@ -25,7 +25,8 @@
     const nav = $("#navAuth");
     if (state.user) {
       nav.innerHTML = `
-        <span style="font-size:.9rem;margin-right:8px;">Hi, ${state.user.name.split(" ")[0]}</span>
+        <a href="/profile" class="btn btn-ghost">Profile</a>
+        <span style="font-size:.9rem;margin:0 8px;">Hi, ${state.user.name.split(" ")[0]}</span>
         <button class="btn btn-ghost" id="logoutBtn">Log out</button>`;
       $("#logoutBtn").addEventListener("click", logout);
     } else {
@@ -35,6 +36,9 @@
       bindOpenTriggers();
     }
   }
+
+  // expose for other scripts (profile.js) to call after DOM ready
+  window.renderNavAuth = renderNavAuth;
 
   function logout() {
     state.token = null;

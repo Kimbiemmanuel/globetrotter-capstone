@@ -233,6 +233,67 @@ a { color: var(--primary-soft); }
 .share-row { display: flex; gap: 8px; margin-top: 12px; }
 .share-row input { flex: 1; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); }
 
+/* ---------- Profile page ---------- */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  gap: 22px;
+  margin-top: 24px;
+}
+.profile-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 14px 32px rgba(15, 76, 129, 0.08);
+}
+.profile-card h3 {
+  margin-bottom: 16px;
+  font-size: 1.18rem;
+}
+.profile-card form label {
+  display: block;
+  margin-bottom: 14px;
+  font-size: .94rem;
+  color: var(--slate);
+}
+.profile-card form input,
+.profile-card form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-top: 6px;
+  font-family: var(--sans);
+}
+.profile-card form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.profile-card .visited-card {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.profile-card .visited-card img {
+  width: 100%;
+  height: 100px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+.profile-card .visited-card strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--primary-dark);
+}
+.profile-card .visited-card p {
+  margin: 0;
+  color: var(--slate);
+  font-size: .9rem;
+}
+
 /* ---------- Footer ---------- */
 .site-footer { background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%); color: #eaf4fb; padding: 34px 24px; margin-top: 40px; }
 .footer-inner { max-width: 1220px; margin: 0 auto; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: .88rem; }
@@ -271,19 +332,52 @@ a { color: var(--primary-soft); }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 @media (max-width: 900px) {
-  .hero { grid-template-columns: 1fr; gap: 24px; }
-  .hero-media { min-height: 320px; }
+  .topnav { border-bottom-color: rgba(15, 76, 129, 0.08); }
+  .nav-inner { padding: 14px 20px; gap: 20px; }
+  .brand { font-size: 1.2rem; }
+  .nav-links { gap: 18px; }
+  .nav-links a { font-size: .9rem; }
+  .nav-auth { gap: 8px; }
+  .hero { padding: 42px 24px 44px; }
+  .hero-copy { max-width: 100%; }
+  .hero-badges { justify-content: flex-start; }
   .feature-strip { grid-template-columns: 1fr; padding-bottom: 40px; }
 }
 
+@media (max-width: 760px) {
+  .topnav { border-bottom-color: rgba(15, 76, 129, 0.08); }
+  .nav-inner { align-items: flex-start; gap: 10px; padding: 12px 18px; }
+  .brand { font-size: 1.1rem; }
+  .nav-links { display: flex; flex-wrap: wrap; gap: 10px; width: 100%; margin-left: 0; justify-content: center; }
+  .nav-links a { padding: 6px 10px; border-radius: 12px; background: rgba(15, 76, 129, 0.06); font-size: .88rem; }
+  .nav-auth { width: 100%; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+  .topnav .btn { padding: 8px 14px; font-size: .85rem; }
+  .hero { padding: 38px 20px 42px; }
+  .section { padding: 56px 20px; }
+  .profile-grid { grid-template-columns: 1fr; }
+  .share-row { flex-direction: column; }
+  .itin-row { flex-direction: column; }
+  .card-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+}
+
 @media (max-width: 640px) {
-  .nav-inner { flex-wrap: wrap; gap: 14px; padding: 12px 16px; }
-  .nav-links { display: none; }
+  .nav-inner { flex-wrap: wrap; gap: 12px; padding: 10px 14px; }
+  .brand { font-size: 1rem; }
+  .nav-links { justify-content: space-between; }
+  .nav-links a { padding: 6px 10px; font-size: .84rem; }
+  .nav-auth { justify-content: space-between; }
+  .topnav .btn { padding: 7px 12px; font-size: .82rem; }
   .hero { padding: 24px 16px 42px; }
-  .section { padding: 64px 16px; }
+  .section { padding: 50px 16px; }
   .filter-bar { flex-direction: column; }
   .filter-bar input, .filter-bar select { width: 100%; min-width: 0; }
-  .hero-media-card { max-width: calc(100% - 32px); }
-  .itin-row { flex-direction: column; }
-  .share-row { flex-direction: column; }
+  .hero-badges { justify-content: flex-start; }
+  .hero-copy h1 { font-size: 2.4rem; }
+  .hero-sub { font-size: 1rem; }
+  .card-grid { grid-template-columns: 1fr; }
+  .destination-card, .dest-card { width: 100%; }
+  .profile-card { padding: 20px; }
+  .profile-card .visited-card { grid-template-columns: 100px 1fr; }
+  .modal { width: 100%; max-width: 100%; margin: 0 10px; }
 }
+

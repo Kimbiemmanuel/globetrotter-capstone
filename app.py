@@ -142,6 +142,11 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/profile")
+def profile_page():
+    return render_template("profile.html")
+
+
 # --------------------------------------------------------------------------
 # Routes: auth
 # --------------------------------------------------------------------------

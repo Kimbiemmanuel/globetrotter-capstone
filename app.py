@@ -325,6 +325,10 @@ def share_itinerary(itinerary_id):
     if itinerary["user_id"] != request.user_id:
         return jsonify({"error": "You can only share your own itineraries"}), 403
 
+    users = get_users()
+    if share_email not in {u.get("email", "").lower() for u in users}:
+        return jsonify({"error": "No account is registered with that email"}), 404
+
     if share_email not in itinerary["shared_with"]:
         itinerary["shared_with"].append(share_email)
     save_itineraries(itins)

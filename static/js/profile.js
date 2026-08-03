@@ -1,6 +1,5 @@
 (function () {
   const token = localStorage.getItem('gt_token');
-  const user = JSON.parse(localStorage.getItem('gt_user') || 'null');
   const authHeaders = token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : {};
 
   const $ = (s) => document.querySelector(s);
@@ -26,19 +25,33 @@
     $('#profileName').value = u.name || '';
     $('#profileEmail').value = u.email || '';
 
-    // tags
     const tags = (u.preferences && u.preferences.tags) || [];
     $$('.pref-tag').forEach((chk) => { chk.checked = tags.includes(chk.value); });
 
-    // itineraries
     const itins = data.itineraries || [];
-    $('#profileItins').innerHTML = itins.length ? itins.map(i => `
-      <div class="itin-card"><strong>${i.title}</strong><div class="itin-stops">${(i.stop_details||[]).map(d=>d.name).join(', ')}</div></div>
-    `).join('') : '<p>No trips yet.</p>';
+    $('#profileTripCount').textContent = itins.length;
+    $('#profileItins').innerHTML = itins.length ? itins.map((i) => `
+      <div class="profile-entry-card">
+        <div class="profile-entry-head">
+          <strong>${i.title}</strong>
+          <span>${i.start_date || 'Flexible plan'}</span>
+        </div>
+        <p class="dest-area">${(i.stop_details || []).map((d) => d.name).join(' • ')}</p>
+        ${i.notes ? `<p class="profile-entry-note">${i.notes}</p>` : ''}
+      </div>
+    `).join('') : '<p class="empty-state">No trips yet. Start one from the home page.</p>';
 
-    // visited
     const visited = data.visited || [];
-    $('#profileVisited').innerHTML = visited.length ? visited.map(d=>`<div class="visited-card"><img src="${d.image}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg'"/><div><strong>${d.name}</strong><p class="dest-area">${d.area}</p></div></div>`).join('') : '<p>No visited places recorded.</p>';
+    $('#profileVisitCount').textContent = visited.length;
+    $('#profileVisited').innerHTML = visited.length ? visited.map((d) => `
+      <div class="visited-card">
+        <img src="${d.image}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg'"/>
+        <div>
+          <strong>${d.name}</strong>
+          <p class="dest-area">${d.area}</p>
+        </div>
+      </div>
+    `).join('') : '<p class="empty-state">No visited places recorded yet.</p>';
   }
 
   $('#profileForm').addEventListener('submit', async (e)=>{
@@ -46,7 +59,7 @@
     if (!token) { toast('Log in first'); return; }
     const name = $('#profileName').value.trim();
     const password = $('#profilePassword').value || null;
-    const tags = $$('.pref-tag').filter(c=>c.checked).map(c=>c.value);
+    const tags = $$('.pref-tag').filter((c)=>c.checked).map((c)=>c.value);
 
     const body = { name, preferences: { tags } };
     if (password) body.password = password;
@@ -57,16 +70,13 @@
       $('#profileMsg').textContent = data.error || 'Could not update profile.';
       return;
     }
-    // update local user name
     const localUser = JSON.parse(localStorage.getItem('gt_user')||'null');
     if (localUser) { localUser.name = data.user.name; localStorage.setItem('gt_user', JSON.stringify(localUser)); }
     toast('Profile saved');
     $('#profilePassword').value = '';
   });
 
-  // render nav auth using main.js capabilities when available
   document.addEventListener('DOMContentLoaded', ()=>{
-    // delegate to main.js renderNavAuth if it exists
     if (window.renderNavAuth) window.renderNavAuth();
     loadProfile();
   });

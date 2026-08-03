@@ -39,7 +39,7 @@
     <p class="hero-sub">Globe Trotter blends iconic landmarks, touristic neighborhoods, and simple trip planning into a modern travel experience built for visitors exploring Yaoundé and beyond.</p>
     <div class="hero-cta">
       <a href="#destinations" class="btn btn-solid btn-lg">Explore destinations</a>
-      <button class="btn btn-outline btn-lg" data-open="register">Create free account</button>
+      <button class="btn btn-outline btn-lg" id="heroCreateAccount" data-open="register">Create free account</button>
     </div>
     <div class="hero-badges">
       <span>Yaoundé landmarks</span>
@@ -76,6 +76,7 @@
           <option value="">All categories</option>
         </select>
       </div>
+      <div class="category-pills" id="categoryPills" aria-label="Browse categories"></div>
     </div>
     <div class="card-grid" id="destinationGrid">
       <p class="loading">Loading destinations…</p>
@@ -157,6 +158,13 @@
       <p class="modal-switch">Already have an account? <a href="#" data-open="login">Log in</a></p>
       <p class="form-error" id="regError"></p>
     </div>
+  </div>
+</div>
+
+<div class="detail-modal-backdrop hidden" id="detailModalBackdrop">
+  <div class="detail-modal">
+    <button class="detail-modal-close" id="detailModalClose" aria-label="Close">×</button>
+    <div id="detailModalContent"></div>
   </div>
 </div>
 

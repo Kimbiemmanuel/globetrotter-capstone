@@ -2,6 +2,7 @@
   const state = {
     destinations: [],
     selectedStops: new Set(),
+    activeCategory: "",
     token: localStorage.getItem("gt_token") || null,
     user: JSON.parse(localStorage.getItem("gt_user") || "null"),
   };
@@ -11,6 +12,7 @@
 
   function toast(msg) {
     const el = $("#toast");
+    if (!el) return;
     el.textContent = msg;
     el.classList.add("show");
     setTimeout(() => el.classList.remove("show"), 2600);
@@ -20,13 +22,20 @@
     return state.token ? { Authorization: `Bearer ${state.token}` } : {};
   }
 
-  // ---------------- Nav auth state ----------------
   function renderNavAuth() {
     const nav = $("#navAuth");
+    const heroCta = $("#heroCreateAccount");
+    if (heroCta) heroCta.style.display = state.user ? "none" : "inline-block";
+    if (!nav) return;
     if (state.user) {
       nav.innerHTML = `
-        <a href="/profile" class="btn btn-ghost">Profile</a>
-        <span style="font-size:.9rem;margin:0 8px;">Hi, ${state.user.name.split(" ")[0]}</span>
+        <a href="/profile" class="nav-user-pill">
+          <span class="nav-user-avatar">${state.user.name.charAt(0).toUpperCase()}</span>
+          <span class="nav-user-meta">
+            <strong>Hi, ${state.user.name.split(" ")[0]}</strong>
+            <small>Profile</small>
+          </span>
+        </a>
         <button class="btn btn-ghost" id="logoutBtn">Log out</button>`;
       $("#logoutBtn").addEventListener("click", logout);
     } else {
@@ -37,7 +46,6 @@
     }
   }
 
-  // expose for other scripts (profile.js) to call after DOM ready
   window.renderNavAuth = renderNavAuth;
 
   function logout() {
@@ -51,14 +59,17 @@
     toast("Logged out");
   }
 
-  // ---------------- Modal ----------------
   function openModal(which) {
-    $("#modalBackdrop").classList.add("open");
+    const backdrop = $("#modalBackdrop");
+    if (!backdrop) return;
+    backdrop.classList.add("open");
     $("#panelLogin").classList.toggle("hidden", which !== "login");
     $("#panelRegister").classList.toggle("hidden", which !== "register");
   }
   function closeModal() {
-    $("#modalBackdrop").classList.remove("open");
+    const backdrop = $("#modalBackdrop");
+    if (!backdrop) return;
+    backdrop.classList.remove("open");
     $("#loginError").textContent = "";
     $("#regError").textContent = "";
   }
@@ -70,36 +81,57 @@
       });
     });
   }
-  $("#modalClose").addEventListener("click", closeModal);
-  $("#modalBackdrop").addEventListener("click", (e) => {
+  $("#modalClose")?.addEventListener("click", closeModal);
+  $("#modalBackdrop")?.addEventListener("click", (e) => {
     if (e.target.id === "modalBackdrop") closeModal();
   });
 
-  // ---------------- Destinations ----------------
   async function loadDestinations() {
     const res = await fetch("/destinations");
     const data = await res.json();
     state.destinations = data.destinations;
     populateCategoryFilter();
+    renderCategoryPills();
     renderDestinationGrid(state.destinations);
     renderCredits();
   }
 
   function populateCategoryFilter() {
     const select = $("#categorySelect");
-    const categories = [...new Set(state.destinations.map((d) => d.category))];
+    if (!select) return;
+    const categories = [...new Set(state.destinations.map((d) => d.category).filter(Boolean))];
+    select.innerHTML = '<option value="">All categories</option>';
     categories.forEach((c) => {
       const opt = document.createElement("option");
       opt.value = c;
       opt.textContent = c;
       select.appendChild(opt);
     });
+    select.value = state.activeCategory;
+  }
+
+  function renderCategoryPills() {
+    const container = $("#categoryPills");
+    if (!container) return;
+    const categories = [...new Set(state.destinations.map((d) => d.category).filter(Boolean))];
+    container.innerHTML = categories.map((c) => `
+      <button class="category-pill ${state.activeCategory === c ? "active" : ""}" data-category="${c}">
+        ${c}
+      </button>`).join("");
+    container.querySelectorAll(".category-pill").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.activeCategory = btn.dataset.category;
+        renderCategoryPills();
+        populateCategoryFilter();
+        filterDestinations();
+      });
+    });
   }
 
   function destCard(d, idx) {
     const added = state.selectedStops.has(d.id);
     return `
-      <article class="dest-card" style="animation-delay:${idx * 0.06}s">
+      <article class="dest-card" style="animation-delay:${idx * 0.06}s" data-id="${d.id}">
         <div class="dest-photo">
           <img src="${d.image}" alt="${d.name}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
           <span class="dest-rating">★ ${d.rating}</span>
@@ -111,7 +143,7 @@
           <p class="dest-desc">${d.description}</p>
           <div class="dest-actions">
             <span class="dest-credit">📷 ${d.credit}</span>
-            <button class="add-btn ${added ? "added" : ""}" data-id="${d.id}">
+            <button class="add-btn ${added ? "added" : ""}" data-id="${d.id}" type="button">
               ${added ? "Added ✓" : "Add to trip"}
             </button>
           </div>
@@ -121,15 +153,18 @@
 
   function renderDestinationGrid(list) {
     const grid = $("#destinationGrid");
+    if (!grid) return;
     grid.innerHTML = list.length
       ? list.map((d, i) => destCard(d, i)).join("")
       : `<p class="loading">No destinations match your search.</p>`;
     bindAddButtons(grid);
+    bindDestinationCards(grid);
   }
 
   function bindAddButtons(scopeEl) {
     scopeEl.querySelectorAll(".add-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
         const id = btn.dataset.id;
         if (state.selectedStops.has(id)) {
           state.selectedStops.delete(id);
@@ -145,26 +180,124 @@
     });
   }
 
-  function renderCredits() {
-    const unique = [...new Set(state.destinations.map((d) => d.credit))];
-    $("#creditsList").textContent = `Destination photography: ${unique.join(", ")}.`;
+  function bindDestinationCards(scopeEl) {
+    scopeEl.querySelectorAll(".dest-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        const dest = state.destinations.find((d) => d.id === card.dataset.id);
+        if (dest) openDestinationModal(dest);
+      });
+    });
   }
 
-  $("#searchInput").addEventListener("input", filterDestinations);
-  $("#categorySelect").addEventListener("change", filterDestinations);
+  function renderCredits() {
+    const unique = [...new Set(state.destinations.map((d) => d.credit))];
+    const credits = $("#creditsList");
+    if (credits) credits.textContent = `Destination photography: ${unique.join(", ")}.`;
+  }
+
+  $("#searchInput")?.addEventListener("input", filterDestinations);
+  $("#categorySelect")?.addEventListener("change", (e) => {
+    state.activeCategory = e.target.value;
+    renderCategoryPills();
+    filterDestinations();
+  });
 
   function filterDestinations() {
     const q = $("#searchInput").value.trim().toLowerCase();
-    const cat = $("#categorySelect").value;
+    const cat = state.activeCategory || $("#categorySelect").value;
     const filtered = state.destinations.filter((d) => {
-      const matchQ = !q || d.name.toLowerCase().includes(q) || d.area.toLowerCase().includes(q) || d.tags.some((t) => t.includes(q));
+      const matchQ = !q || d.name.toLowerCase().includes(q) || d.area.toLowerCase().includes(q) || (d.tags || []).some((t) => t.includes(q));
       const matchCat = !cat || d.category === cat;
       return matchQ && matchCat;
     });
     renderDestinationGrid(filtered);
   }
 
-  // ---------------- Recommendations ----------------
+  function openDestinationModal(dest) {
+    const backdrop = $("#detailModalBackdrop");
+    const content = $("#detailModalContent");
+    if (!backdrop || !content) return;
+    const images = dest.images || [dest.image];
+    const details = dest.details || {};
+    const highlights = Array.isArray(details.highlights) ? details.highlights : [];
+    const gallery = images.map((img, index) => `
+      <button type="button" class="thumb ${index === 0 ? "active" : ""}" data-image="${img}">
+        <img src="${img}" alt="${dest.name} view ${index + 1}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
+      </button>`).join("");
+    const mapEmbed = `https://www.openstreetmap.org/export/embed.html?bbox=${(dest.lng || 11.5203) - 0.01}%2C${(dest.lat || 3.8667) - 0.01}%2C${(dest.lng || 11.5203) + 0.01}%2C${(dest.lat || 3.8667) + 0.01}&layer=mapnik&marker=${dest.lat || 3.8667}%2C${dest.lng || 11.5203}`;
+    content.innerHTML = `
+      <div class="detail-gallery">
+        <img class="detail-main-image" id="detailMainImage" src="${images[0]}" alt="${dest.name}" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
+        <div class="detail-thumbs">${gallery}</div>
+      </div>
+      <div class="detail-copy">
+        <p class="eyebrow">${dest.category}</p>
+        <h3>${dest.name}</h3>
+        <p class="dest-area">${dest.area}</p>
+        <p>${details.overview || dest.description}</p>
+        <div class="detail-meta">
+          <div>
+            <strong>Why it stands out</strong>
+            <p>${details.story || "A local favourite with plenty of charm and character."}</p>
+          </div>
+          <div>
+            <strong>Highlights</strong>
+            <ul>${highlights.map((item) => `<li>${item}</li>`).join("")}</ul>
+          </div>
+        </div>
+        <iframe class="detail-map" title="Map for ${dest.name}" src="${mapEmbed}"></iframe>
+        <div class="detail-actions">
+          <button class="btn btn-outline" id="routeBtn" type="button">Get route info</button>
+        </div>
+        <p class="route-answer" id="routeAnswer">This live map is embedded directly in the card view and route estimates are available from your location.</p>
+      </div>`;
+    backdrop.classList.remove("hidden");
+    content.querySelectorAll(".thumb").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const img = content.querySelector("#detailMainImage");
+        if (img) img.src = btn.dataset.image;
+        content.querySelectorAll(".thumb").forEach((item) => item.classList.toggle("active", item === btn));
+      });
+    });
+    $("#routeBtn")?.addEventListener("click", () => getRouteInfo(dest));
+  }
+
+  function closeDestinationModal() {
+    $("#detailModalBackdrop")?.classList.add("hidden");
+  }
+
+  $("#detailModalClose")?.addEventListener("click", closeDestinationModal);
+  $("#detailModalBackdrop")?.addEventListener("click", (e) => {
+    if (e.target.id === "detailModalBackdrop") closeDestinationModal();
+  });
+
+  function getRouteInfo(dest) {
+    const answer = $("#routeAnswer");
+    if (!answer) return;
+    if (!navigator.geolocation) {
+      answer.textContent = "Location access is unavailable in this browser.";
+      return;
+    }
+    answer.textContent = "Finding your route…";
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const origin = `${pos.coords.longitude},${pos.coords.latitude}`;
+      const destination = `${dest.lng || 11.5203},${dest.lat || 3.8667}`;
+      try {
+        const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${origin};${destination}?overview=false`);
+        const data = await res.json();
+        if (!data.routes?.length) throw new Error("No route");
+        const route = data.routes[0];
+        const kilometers = (route.distance / 1000).toFixed(1);
+        const minutes = Math.max(1, Math.round(route.duration / 60));
+        answer.textContent = `Approx. ${kilometers} km • ${minutes} min from your current location.`;
+      } catch (error) {
+        answer.textContent = "Route lookup was unavailable, but you can still open the location map.";
+      }
+    }, () => {
+      answer.textContent = "Please allow location access to estimate travel time.";
+    });
+  }
+
   async function loadRecommendations() {
     const res = await fetch("/recommendations", { headers: authHeaders() });
     const data = await res.json();
@@ -173,10 +306,10 @@
       : "Showing top-rated picks. Log in for recommendations based on your preferences and past trips.";
     $("#recGrid").innerHTML = data.recommendations.map((d, i) => destCard(d, i)).join("");
     bindAddButtons($("#recGrid"));
+    bindDestinationCards($("#recGrid"));
   }
 
-  // ---------------- Auth forms ----------------
-  $("#registerForm").addEventListener("submit", async (e) => {
+  $("#registerForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const name = $("#regName").value.trim();
     const email = $("#regEmail").value.trim();
@@ -196,7 +329,7 @@
     onAuthSuccess(data);
   });
 
-  $("#loginForm").addEventListener("submit", async (e) => {
+  $("#loginForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = $("#loginEmail").value.trim();
     const password = $("#loginPassword").value;
@@ -226,7 +359,6 @@
     loadItineraries();
   }
 
-  // ---------------- Itineraries ----------------
   function renderItinerarySection() {
     const form = $("#itinForm");
     const note = $("#itinNote");
@@ -240,7 +372,7 @@
     }
   }
 
-  $("#itinForm").addEventListener("submit", async (e) => {
+  $("#itinForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (state.selectedStops.size === 0) {
       toast("Add at least one destination to your trip first.");
@@ -312,7 +444,6 @@
     });
   }
 
-  // ---------------- Init ----------------
   bindOpenTriggers();
   renderNavAuth();
   renderItinerarySection();

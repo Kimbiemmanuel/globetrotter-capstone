@@ -20,15 +20,28 @@
   </nav>
 
   <main class="section">
-    <div class="section-head">
-      <h2>Your profile</h2>
-      <p class="section-note">Manage your account, interests, and view trips and visited places.</p>
-    </div>
+    <section class="profile-hero">
+      <div class="profile-hero-copy">
+        <p class="eyebrow">Travel profile</p>
+        <h2>Shape your Yaoundé plans around the places you love.</h2>
+        <p class="section-note">Keep your interests, saved itineraries, and favorite stops in one polished dashboard.</p>
+      </div>
+      <div class="profile-hero-stats">
+        <div class="stat-pill"><strong id="profileTripCount">0</strong><span>Trips saved</span></div>
+        <div class="stat-pill"><strong id="profileVisitCount">0</strong><span>Places visited</span></div>
+      </div>
+    </section>
 
     <section class="profile-grid">
-      <div class="profile-card">
-        <h3>Account</h3>
-        <form id="profileForm">
+      <div class="profile-card profile-card-wide">
+        <div class="profile-card-head">
+          <div>
+            <p class="eyebrow">Account</p>
+            <h3>Profile details</h3>
+          </div>
+          <span class="profile-badge">Personal</span>
+        </div>
+        <form id="profileForm" class="profile-form">
           <label>Full name
             <input type="text" id="profileName" required>
           </label>
@@ -52,12 +65,22 @@
       </div>
 
       <div class="profile-card">
-        <h3>Your trips</h3>
+        <div class="profile-card-head">
+          <div>
+            <p class="eyebrow">Trips</p>
+            <h3>Your itineraries</h3>
+          </div>
+        </div>
         <div id="profileItins">Loading…</div>
       </div>
 
       <div class="profile-card">
-        <h3>Visited places</h3>
+        <div class="profile-card-head">
+          <div>
+            <p class="eyebrow">Places</p>
+            <h3>Visited stops</h3>
+          </div>
+        </div>
         <div id="profileVisited">Loading…</div>
       </div>
     </section>

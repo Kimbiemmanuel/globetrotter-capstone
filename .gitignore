@@ -24,8 +24,9 @@ build/
 # Docker
 .dockerignore
 
-# Data files (populated at runtime; keep only .gitkeep)
+# Data files (populated at runtime; keep seed catalogue tracked)
 data/*.json
+!data/destinations.json
 
 # IDE / editor
 .vscode/

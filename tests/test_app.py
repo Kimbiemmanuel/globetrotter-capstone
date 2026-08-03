@@ -26,6 +26,16 @@ class GlobeTrotterAppTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()["city"], "Yaoundé")
 
+    def test_destinations_endpoint_returns_gallery_and_details(self):
+        response = self.client.get("/destinations")
+        self.assertEqual(response.status_code, 200)
+        payload = response.get_json()
+        self.assertGreater(payload["count"], 0)
+        first = payload["destinations"][0]
+        self.assertIn("images", first)
+        self.assertTrue(first["images"])
+        self.assertIn("details", first)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -24,6 +24,8 @@
 
   function renderNavAuth() {
     const nav = $("#navAuth");
+    const heroCta = $("#heroCreateAccount");
+    if (heroCta) heroCta.style.display = state.user ? "none" : "inline-block";
     if (!nav) return;
     if (state.user) {
       nav.innerHTML = `
@@ -222,6 +224,7 @@
       <button type="button" class="thumb ${index === 0 ? "active" : ""}" data-image="${img}">
         <img src="${img}" alt="${dest.name} view ${index + 1}" loading="lazy" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
       </button>`).join("");
+    const mapEmbed = `https://www.openstreetmap.org/export/embed.html?bbox=${(dest.lng || 11.5203) - 0.01}%2C${(dest.lat || 3.8667) - 0.01}%2C${(dest.lng || 11.5203) + 0.01}%2C${(dest.lat || 3.8667) + 0.01}&layer=mapnik&marker=${dest.lat || 3.8667}%2C${dest.lng || 11.5203}`;
     content.innerHTML = `
       <div class="detail-gallery">
         <img class="detail-main-image" id="detailMainImage" src="${images[0]}" alt="${dest.name}" onerror="this.onerror=null;this.src='/static/images/yaounde-fallback.svg';">
@@ -242,11 +245,11 @@
             <ul>${highlights.map((item) => `<li>${item}</li>`).join("")}</ul>
           </div>
         </div>
+        <iframe class="detail-map" title="Map for ${dest.name}" src="${mapEmbed}"></iframe>
         <div class="detail-actions">
-          <a class="btn btn-solid" href="https://www.openstreetmap.org/search?query=${encodeURIComponent(dest.map_query || dest.name + ', Yaoundé')}" target="_blank" rel="noopener">View on map</a>
           <button class="btn btn-outline" id="routeBtn" type="button">Get route info</button>
         </div>
-        <p class="route-answer" id="routeAnswer">Tap “Get route info” to see how far it is from your current location.</p>
+        <p class="route-answer" id="routeAnswer">This live map is embedded directly in the card view and route estimates are available from your location.</p>
       </div>`;
     backdrop.classList.remove("hidden");
     content.querySelectorAll(".thumb").forEach((btn) => {

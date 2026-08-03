@@ -253,23 +253,23 @@
   },
   {
     "id": "d13",
-    "name": "Le Ciel Restaurant",
-    "local_name": "Restaurant Le Ciel",
-    "area": "Centre-ville, Yaoundé",
-    "category": "Restaurants & Food",
-    "tags": ["food", "restaurant", "view", "city"],
-    "rating": 4.6,
-    "description": "A stylish spot for local and international favourites with a relaxed setting and lively atmosphere.",
+    "name": "Marché Mokolo",
+    "local_name": "Marché Mokolo",
+    "area": "Mokolo, Yaoundé",
+    "category": "Markets & Culture",
+    "tags": ["market", "culture", "food", "local"],
+    "rating": 4.5,
+    "description": "A vibrant market district known for its energy, street food and everyday commerce.",
     "image": "/static/images/d13_0.jpg",
     "images": ["/static/images/d13_0.jpg", "/static/images/d13_1.jpg", "/static/images/d13_2.jpg", "/static/images/d13_3.jpg"],
     "credit": "Local gallery",
-    "lat": 3.8608,
-    "lng": 11.5207,
-    "map_query": "Le Ciel Restaurant Yaoundé",
+    "lat": 3.8540,
+    "lng": 11.5204,
+    "map_query": "Marché Mokolo Yaoundé",
     "details": {
-      "overview": "A refined city restaurant that pairs a welcoming setting with a food-first experience.",
-      "story": "It is known as a go-to pick for visitors who want a comfortable meal after a day of exploring the capital.",
-      "highlights": ["Dinner-friendly atmosphere", "Good for small celebrations", "Easy central access"]
+      "overview": "A lively market area where you can experience everyday Yaoundé life, from food to fashion and conversation.",
+      "story": "Mokolo is one of the city’s most active neighbourhoods for trade and daily movement, making it a great stop for culture and people-watching.",
+      "highlights": ["Street food and local snacks", "Vibrant daily commerce", "Great for cultural immersion"]
     }
   },
   {
@@ -291,6 +291,132 @@
       "overview": "A simple and welcoming park for a quiet break between city stops.",
       "story": "It works well for short picnics, gentle walks and slow afternoons when you want to reset without leaving town.",
       "highlights": ["Easy picnic spot", "Good for families", "Peaceful midday break"]
+    }
+  },
+  {
+    "id": "d15",
+    "name": "Le Ciel Restaurant",
+    "local_name": "Le Ciel Restaurant",
+    "area": "Centre-ville, Yaoundé",
+    "category": "Restaurants & Food",
+    "tags": ["food", "restaurant", "dinner", "city"],
+    "rating": 4.7,
+    "description": "A polished restaurant choice for a comfortable meal, relaxed atmosphere and good city views.",
+    "image": "/static/images/d15_0.jpg",
+    "images": ["/static/images/d15_0.jpg", "/static/images/d15_1.jpg", "/static/images/d15_2.jpg", "/static/images/d15_3.jpg"],
+    "credit": "Local gallery",
+    "lat": 3.8638,
+    "lng": 11.5210,
+    "map_query": "Le Ciel Restaurant Yaoundé",
+    "details": {
+      "overview": "A city-centre dining spot that is especially attractive for evening meals and relaxed social visits.",
+      "story": "The restaurant is known as a comfortable place to take a break after sightseeing or to enjoy a slow dinner downtown.",
+      "highlights": ["Relaxed evening dining", "Good for casual gatherings", "Central and accessible"]
+    }
+  },
+  {
+    "id": "d16",
+    "name": "Hôtel Mont Fébé",
+    "local_name": "Hôtel Mont Fébé",
+    "area": "Mont Fébé, Yaoundé",
+    "category": "Hotels & Stays",
+    "tags": ["hotel", "stay", "view", "comfort"],
+    "rating": 4.6,
+    "description": "A classic hotel stay with a calm setting and easy access to the city’s higher viewpoints.",
+    "image": "/static/images/d16_0.jpg",
+    "images": ["/static/images/d16_0.jpg", "/static/images/d16_1.jpg", "/static/images/d16_2.jpg", "/static/images/d16_3.jpg"],
+    "credit": "Local gallery",
+    "lat": 3.8728,
+    "lng": 11.5018,
+    "map_query": "Hôtel Mont Fébé Yaoundé",
+    "details": {
+      "overview": "A comfortable accommodation option that blends city access with the calm of the hilltop districts.",
+      "story": "Its location is one of the reasons travellers choose it when they want both convenience and a quieter setting.",
+      "highlights": ["Hilltop location", "Suitable for short stays", "Good for business or leisure"]
+    }
+  },
+  {
+    "id": "d17",
+    "name": "Hôtel La Falaise",
+    "local_name": "Hôtel La Falaise",
+    "area": "Nlongkak, Yaoundé",
+    "category": "Hotels & Stays",
+    "tags": ["hotel", "stay", "nature", "luxury"],
+    "rating": 4.7,
+    "description": "A welcoming stay for travellers looking for comfort, greenery and a quieter escape.",
+    "image": "/static/images/d17_0.jpg",
+    "images": ["/static/images/d17_0.jpg", "/static/images/d17_1.jpg", "/static/images/d17_10.jpg", "/static/images/d17_11.jpg"],
+    "credit": "Local gallery",
+    "lat": 3.8828,
+    "lng": 11.5182,
+    "map_query": "Hôtel La Falaise Yaoundé",
+    "details": {
+      "overview": "A stylish accommodation option that feels more private and restful than the busy downtown core.",
+      "story": "The property is appreciated for its calmer atmosphere and the sense of space it offers to guests.",
+      "highlights": ["Quiet surroundings", "Good for longer stays", "Nature-friendly setting"]
+    }
+  },
+  {
+    "id": "d18",
+    "name": "Jardin Botanique de Yaoundé",
+    "local_name": "Jardin Botanique de Yaoundé",
+    "area": "Mefou-et-Afamba, Yaoundé",
+    "category": "Gardens & Nature",
+    "tags": ["garden", "nature", "picnic", "relax"],
+    "rating": 4.4,
+    "description": "A peaceful botanical garden that makes for a calm outdoor break with plenty of greenery.",
+    "image": "/static/images/d18_0.jpg",
+    "images": ["/static/images/d18_0.jpg", "/static/images/d18_1.jpg", "/static/images/d18_2.jpg", "/static/images/d18_3.jpg"],
+    "credit": "Local gallery",
+    "lat": 3.8890,
+    "lng": 11.4801,
+    "map_query": "Jardin Botanique de Yaoundé",
+    "details": {
+      "overview": "A nature-forward stop that gives visitors a slower pace and a more verdant side of the city.",
+      "story": "Botanical gardens offer a great way to see the region’s plant life while enjoying a picnic or an easy walk.",
+      "highlights": ["Great for nature lovers", "Relaxed outdoor time", "Ideal for photographers"]
+    }
+  },
+  {
+    "id": "d19",
+    "name": "Mokolo Market",
+    "local_name": "Marché de Mokolo",
+    "area": "Mokolo, Yaoundé",
+    "category": "Markets & Culture",
+    "tags": ["market", "food", "culture", "local"],
+    "rating": 4.3,
+    "description": "A lively local market where food, crafts and everyday city life come together in one busy space.",
+    "image": "/static/images/d19_0.jpg",
+    "images": ["/static/images/d19_0.jpg", "/static/images/d19_1.jpg", "/static/images/d19_2.jpg", "/static/images/d19_3.jpg", "/static/images/d19_4.jpg"],
+    "credit": "Local gallery",
+    "lat": 3.8549,
+    "lng": 11.5208,
+    "map_query": "Marché de Mokolo Yaoundé",
+    "details": {
+      "overview": "A practical and colourful market stop that captures the day-to-day energy of the city.",
+      "story": "Mokolo remains one of the easiest places to experience local commerce, street food and neighbourhood life.",
+      "highlights": ["Street food favourites", "Local shopping", "Urban culture in motion"]
+    }
+  },
+  {
+    "id": "d20",
+    "name": "Palais de la Culture",
+    "local_name": "Palais de la Culture",
+    "area": "Centre-ville, Yaoundé",
+    "category": "Events & Culture",
+    "tags": ["culture", "events", "art", "city"],
+    "rating": 4.4,
+    "description": "A cultural hall for exhibitions, performances and public events that bring local creativity to life.",
+    "image": "/static/images/d20_0.jpg",
+    "images": ["/static/images/d20_0.jpg", "/static/images/d20_1.jpg", "/static/images/d20_2.JPG", "/static/images/d20_3.jpg"],
+    "credit": "Local gallery",
+    "lat": 3.8585,
+    "lng": 11.5186,
+    "map_query": "Palais de la Culture Yaoundé",
+    "details": {
+      "overview": "A venue for concerts, exhibitions and special city events connected to Cameroon’s creative scene.",
+      "story": "It’s a useful stop for visitors who want a cultural evening or to catch something happening during their stay.",
+      "highlights": ["Live events", "Arts and performances", "Cultural evening option"]
     }
   }
 ]

@@ -147,14 +147,6 @@ def profile_page():
     return render_template("profile.html")
 
 
-@app.route("/place/<dest_id>")
-def place_page(dest_id):
-    dest = next((d for d in get_destinations() if d.get("id") == dest_id), None)
-    if not dest:
-        return render_template("place.html", destination=None, dest_id=dest_id), 404
-    return render_template("place.html", destination=dest, dest_id=dest_id)
-
-
 # --------------------------------------------------------------------------
 # Routes: auth
 # --------------------------------------------------------------------------
@@ -222,7 +214,6 @@ def login():
 def destinations():
     q = (request.args.get("q") or "").strip().lower()
     category = (request.args.get("category") or "").strip().lower()
-    domain = (request.args.get("domain") or "").strip().lower()
 
     results = get_destinations()
     if q:
@@ -230,23 +221,12 @@ def destinations():
             d for d in results
             if q in d["name"].lower()
             or q in d.get("area", "").lower()
-            or q in d.get("domain", "").lower()
             or any(q in t for t in d.get("tags", []))
         ]
     if category:
         results = [d for d in results if d.get("category", "").lower() == category]
-    if domain:
-        results = [d for d in results if d.get("domain", "").lower() == domain]
 
     return jsonify({"count": len(results), "destinations": results})
-
-
-@app.route("/destinations/<dest_id>", methods=["GET"])
-def destination_detail(dest_id):
-    dest = next((d for d in get_destinations() if d.get("id") == dest_id), None)
-    if not dest:
-        return jsonify({"error": "Destination not found"}), 404
-    return jsonify({"destination": dest})
 
 
 @app.route("/recommendations", methods=["GET"])
@@ -344,6 +324,10 @@ def share_itinerary(itinerary_id):
         return jsonify({"error": "Itinerary not found"}), 404
     if itinerary["user_id"] != request.user_id:
         return jsonify({"error": "You can only share your own itineraries"}), 403
+
+    users = get_users()
+    if share_email not in {u.get("email", "").lower() for u in users}:
+        return jsonify({"error": "No account is registered with that email"}), 404
 
     if share_email not in itinerary["shared_with"]:
         itinerary["shared_with"].append(share_email)

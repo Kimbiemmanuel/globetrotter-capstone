@@ -302,9 +302,9 @@
     "tags": ["food", "restaurant", "dinner", "city"],
     "rating": 4.7,
     "description": "A polished restaurant choice for a comfortable meal, relaxed atmosphere and good city views.",
-    "image": "/static/images/d15_0.jpg",
-    "images": ["/static/images/d15_0.jpg", "/static/images/d15_1.jpg", "/static/images/d15_2.jpg", "/static/images/d15_3.jpg"],
-    "credit": "Local gallery",
+    "image": "https://images.unsplash.com/photo-1541542684-938b8b6a8b1b?auto=format&fit=crop&w=1350&q=80",
+    "images": ["https://images.unsplash.com/photo-1541542684-938b8b6a8b1b?auto=format&fit=crop&w=1350&q=80", "https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1350&q=80"],
+    "credit": "Unsplash",
     "lat": 3.8638,
     "lng": 11.5210,
     "map_query": "Le Ciel Restaurant Yaoundé",
@@ -314,6 +314,7 @@
       "highlights": ["Relaxed evening dining", "Good for casual gatherings", "Central and accessible"]
     }
   },
+
   {
     "id": "d16",
     "name": "Hôtel Mont Fébé",
@@ -323,9 +324,9 @@
     "tags": ["hotel", "stay", "view", "comfort"],
     "rating": 4.6,
     "description": "A classic hotel stay with a calm setting and easy access to the city’s higher viewpoints.",
-    "image": "/static/images/d16_0.jpg",
-    "images": ["/static/images/d16_0.jpg", "/static/images/d16_1.jpg", "/static/images/d16_2.jpg", "/static/images/d16_3.jpg"],
-    "credit": "Local gallery",
+    "image": "https://images.unsplash.com/photo-1542317854-9b36baf2f0e1?auto=format&fit=crop&w=1350&q=80",
+    "images": ["https://images.unsplash.com/photo-1542317854-9b36baf2f0e1?auto=format&fit=crop&w=1350&q=80", "https://images.unsplash.com/photo-1501117716987-c8e36b53bdbb?auto=format&fit=crop&w=1350&q=80"],
+    "credit": "Unsplash",
     "lat": 3.8728,
     "lng": 11.5018,
     "map_query": "Hôtel Mont Fébé Yaoundé",
@@ -344,9 +345,9 @@
     "tags": ["hotel", "stay", "nature", "luxury"],
     "rating": 4.7,
     "description": "A welcoming stay for travellers looking for comfort, greenery and a quieter escape.",
-    "image": "/static/images/d17_0.jpg",
-    "images": ["/static/images/d17_0.jpg", "/static/images/d17_1.jpg", "/static/images/d17_10.jpg", "/static/images/d17_11.jpg"],
-    "credit": "Local gallery",
+    "image": "https://images.unsplash.com/photo-1501117716987-c8e36b53bdbb?auto=format&fit=crop&w=1350&q=80",
+    "images": ["https://images.unsplash.com/photo-1501117716987-c8e36b53bdbb?auto=format&fit=crop&w=1350&q=80", "https://images.unsplash.com/photo-1542317854-9b36baf2f0e1?auto=format&fit=crop&w=1350&q=80"],
+    "credit": "Unsplash",
     "lat": 3.8828,
     "lng": 11.5182,
     "map_query": "Hôtel La Falaise Yaoundé",
@@ -365,9 +366,9 @@
     "tags": ["garden", "nature", "picnic", "relax"],
     "rating": 4.4,
     "description": "A peaceful botanical garden that makes for a calm outdoor break with plenty of greenery.",
-    "image": "/static/images/d18_0.jpg",
-    "images": ["/static/images/d18_0.jpg", "/static/images/d18_1.jpg", "/static/images/d18_2.jpg", "/static/images/d18_3.jpg"],
-    "credit": "Local gallery",
+    "image": "/static/images/d18_remote.jpg",
+    "images": ["/static/images/d18_remote.jpg", "https://images.unsplash.com/photo-1504198453319-5ce911bafcde?auto=format&fit=crop&w=1350&q=80"],
+    "credit": "Local gallery / Unsplash",
     "lat": 3.8890,
     "lng": 11.4801,
     "map_query": "Jardin Botanique de Yaoundé",
@@ -377,6 +378,7 @@
       "highlights": ["Great for nature lovers", "Relaxed outdoor time", "Ideal for photographers"]
     }
   },
+
   {
     "id": "d19",
     "name": "Mokolo Market",
@@ -417,6 +419,49 @@
       "overview": "A venue for concerts, exhibitions and special city events connected to Cameroon’s creative scene.",
       "story": "It’s a useful stop for visitors who want a cultural evening or to catch something happening during their stay.",
       "highlights": ["Live events", "Arts and performances", "Cultural evening option"]
+    }
+  }
+,
+  {
+    "id": "d21",
+    "name": "Luxury Hotel Yaoundé (4★)",
+    "local_name": "Luxury Hotel Yaoundé",
+    "area": "Centre-ville, Yaoundé",
+    "category": "Hotels & Stays",
+    "tags": ["hotel", "4-star", "luxury", "stay"],
+    "rating": 4.5,
+    "description": "A refined hotel choice in central Yaoundé offering comfortable rooms and polished service.",
+    "image": "/static/images/d21_0.jpg",
+    "images": ["/static/images/d21_0.jpg", "/static/images/d21_1.jpg", "/static/images/d21_2.jpg", "/static/images/d21_3.jpg"],
+    "credit": "Local gallery",
+    "lat": 3.8610,
+    "lng": 11.5190,
+    "map_query": "Luxury Hotel Yaoundé",
+    "details": {
+      "overview": "Comfortable rooms, friendly staff and central access to Yaoundé’s main points of interest.",
+      "story": "A solid mid-range luxury option popular with business travellers and visitors wanting central access.",
+      "highlights": ["Well-located", "Room service", "Good city views"]
+    }
+  },
+  {
+    "id": "d22",
+    "name": "Premium Hotel Yaoundé (5★)",
+    "local_name": "Premium Hotel Yaoundé",
+    "area": "Mont Fébé / Centre Region",
+    "category": "Hotels & Stays",
+    "tags": ["hotel", "5-star", "premium", "luxury"],
+    "rating": 4.8,
+    "description": "A premium stay with elevated service, curated dining and tranquil grounds away from the busiest streets.",
+    "image": "/static/images/d22_1.jpg",
+    "images": ["/static/images/d22_1.jpg", "/static/images/d22_2.jpg", "/static/images/d22_3.jpg"],
+    "credit": "Local gallery",
+    "lat": 3.8720,
+    "lng": 11.5020,
+    "map_query": "Premium Hotel Yaoundé",
+    "details": {
+      "overview": "A top-tier hotel option that focuses on comfort, refined dining and thoughtful amenities.",
+      "story": "Recommended for travellers seeking an elevated stay with attentive service and calm surroundings.",
+      "highlights": ["Premium dining", "Quiet surroundings", "Excellent service"]
     }
   }
 ]

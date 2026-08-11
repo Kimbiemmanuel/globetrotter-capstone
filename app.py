@@ -10,6 +10,8 @@ import datetime
 from functools import wraps
 
 import jwt
+import smtplib
+from email.message import EmailMessage
 from flask import Flask, request, jsonify, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -332,7 +334,59 @@ def share_itinerary(itinerary_id):
     if share_email not in itinerary["shared_with"]:
         itinerary["shared_with"].append(share_email)
     save_itineraries(itins)
-    return jsonify({"message": f"Itinerary shared with {share_email}", "itinerary": itinerary})
+    # Attempt to send a notification email if SMTP is configured
+    email_sent = False
+    try:
+        smtp_host = os.environ.get("SMTP_HOST")
+        smtp_port = int(os.environ.get("SMTP_PORT", 0)) if os.environ.get("SMTP_PORT") else None
+        smtp_user = os.environ.get("SMTP_USER")
+        smtp_pass = os.environ.get("SMTP_PASS")
+        smtp_from = os.environ.get("SMTP_FROM", os.environ.get("FROM_EMAIL", "no-reply@globetrotter.local"))
+        use_tls = os.environ.get("SMTP_USE_TLS", "true").lower() in ("1", "true", "yes")
+
+        if smtp_host and smtp_port:
+            # Build a simple itinerary summary
+            dest_lookup = {d["id"]: d for d in get_destinations()}
+            stop_lines = []
+            for s in itinerary.get("stops", []):
+                d = dest_lookup.get(s)
+                if d:
+                    stop_lines.append(f"- {d.get('name')} ({d.get('area')})")
+
+            body_text = f"{request.user_email} has shared an itinerary with you on Globe Trotter.\n\nTitle: {itinerary.get('title')}\n\nStops:\n" + "\n".join(stop_lines)
+            # Create email
+            msg = EmailMessage()
+            msg["Subject"] = f"Globe Trotter: {itinerary.get('title')} — shared with you"
+            msg["From"] = smtp_from
+            msg["To"] = share_email
+            # include a short HTML and plain text body
+            html_stops = "<br>".join([s.replace('\n', '<br>') for s in stop_lines])
+            frontend_base = os.environ.get("FRONTEND_URL", f"http://{request.host}")
+            share_link = f"{frontend_base}/profile"
+            msg.set_content(body_text + f"\n\nView the itinerary: {share_link}")
+            msg.add_alternative(f"<p>{request.user_email} has shared an itinerary with you.</p><p><strong>{itinerary.get('title')}</strong></p><p>{html_stops}</p><p><a href=\"{share_link}\">Open in Globe Trotter</a></p>", subtype="html")
+
+            # Send using SMTP
+            if use_tls:
+                server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
+                server.starttls()
+            else:
+                server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
+
+            if smtp_user and smtp_pass:
+                server.login(smtp_user, smtp_pass)
+
+            server.send_message(msg)
+            server.quit()
+            email_sent = True
+    except Exception as e:
+        # Do not prevent sharing if email fails; just note it in the response
+        print("Warning: failed to send itinerary email:", type(e).__name__, e)
+
+    if email_sent:
+        return jsonify({"message": f"Itinerary shared with {share_email} and email sent", "itinerary": itinerary})
+    else:
+        return jsonify({"message": f"Itinerary shared with {share_email}. Email not sent (SMTP not configured or failed)", "itinerary": itinerary})
 
 
 @app.route("/health", methods=["GET"])

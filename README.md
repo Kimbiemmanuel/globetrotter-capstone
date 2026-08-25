@@ -133,3 +133,30 @@ All data is persisted in plain JSON files inside the `data/` directory:
 | `PORT`               | `5000`                               | Port the app listens on |
 
 > **Important:** Always set `SECRET_KEY` to a long, random value in production (e.g. `python -c "import secrets; print(secrets.token_hex(32))"`).
+
+## New React + Node.js starter (feature/react-node-architecture)
+
+This repository now includes a minimal Node.js API and a React client scaffold in the `server/` and `client/` folders respectively to begin migration from the Flask monolith.
+
+Quick start (run from project root):
+
+1. Start the Node API (serves data and images):
+
+```powershell
+cd server
+npm install
+npm start
+```
+
+2. Start the React client (development):
+
+```powershell
+cd client
+npm install
+npm start
+```
+
+The React app proxies API requests to `http://localhost:5000` and reads images from `/images/...` served by the Node server. Destination details include distance calculation (uses browser geolocation) and a "Get Directions" button that opens Google Maps directions from the user's current position.
+
+Next steps: finish porting remaining endpoints, add authentication, and improve UI.
+

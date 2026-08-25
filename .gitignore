@@ -28,6 +28,10 @@ build/
 data/*.json
 !data/destinations.json
 
+# Node.js
+node_modules/
+client/build/
+
 # IDE / editor
 .vscode/
 .idea/

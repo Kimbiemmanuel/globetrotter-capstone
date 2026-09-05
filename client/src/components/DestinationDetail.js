@@ -14,8 +14,11 @@ function haversine(lat1, lon1, lat2, lon2) {
 export default function DestinationDetail({ dest, onBack }) {
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
+  const userMarkerRef = useRef(null);
+  const routeLayerRef = useRef(null);
   const [userPos, setUserPos] = useState(null);
   const [distanceKm, setDistanceKm] = useState(null);
+  const [eta, setEta] = useState(null);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -32,14 +35,44 @@ export default function DestinationDetail({ dest, onBack }) {
 
   useEffect(() => {
     if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(pos => {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
       setUserPos({ latitude, longitude });
       const d = haversine(latitude, longitude, dest.lat, dest.lng);
       setDistanceKm(d.toFixed(2));
+
       if (mapRef.current) {
-        L.marker([latitude, longitude], { title: 'You' }).addTo(mapRef.current).bindPopup('You');
+        // remove old user marker
+        if (userMarkerRef.current) {
+          mapRef.current.removeLayer(userMarkerRef.current);
+          userMarkerRef.current = null;
+        }
+        userMarkerRef.current = L.marker([latitude, longitude], { title: 'You' }).addTo(mapRef.current).bindPopup('You');
+
+        // remove old route layer
+        if (routeLayerRef.current) {
+          mapRef.current.removeLayer(routeLayerRef.current);
+          routeLayerRef.current = null;
+        }
+
         mapRef.current.fitBounds([[latitude, longitude], [dest.lat, dest.lng]], { padding: [50,50] });
+
+        // fetch route from OSRM public server and draw it
+        try {
+          const url = `https://router.project-osrm.org/route/v1/driving/${longitude},${latitude};${dest.lng},${dest.lat}?overview=full&geometries=geojson`;
+          const res = await fetch(url);
+          const data = await res.json();
+          if (data.routes && data.routes.length) {
+            const route = data.routes[0];
+            const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+            routeLayerRef.current = L.polyline(coords, { color: 'blue', weight: 4 }).addTo(mapRef.current);
+            mapRef.current.fitBounds(routeLayerRef.current.getBounds(), { padding: [50,50] });
+            // duration in seconds -> minutes
+            setEta(Math.round(route.duration / 60));
+          }
+        } catch (e) {
+          console.warn('Routing error', e);
+        }
       }
     }, err => {
       console.warn('Geolocation error', err);
@@ -72,6 +105,9 @@ export default function DestinationDetail({ dest, onBack }) {
       <div style={{ height: 300 }} ref={mapContainerRef}></div>
       <div style={{ marginTop: 10 }}>
         <strong>Distance:</strong> {distanceKm ? `${distanceKm} km` : 'Allow location to calculate'}
+        <div>
+          <strong>Estimated travel time:</strong> {eta ? `${eta} min` : '—'}
+        </div>
       </div>
       <div style={{ marginTop: 8 }}>
         <button onClick={openDirections}>Get Directions</button>

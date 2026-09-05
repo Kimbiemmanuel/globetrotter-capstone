@@ -61,7 +61,13 @@ export default function DestinationDetail({ dest, onBack }) {
     <div>
       <button onClick={onBack}>Back</button>
       <h2>{dest.name}</h2>
-      <img src={`/images/${dest.image}`} alt={dest.name} style={{ width: '100%', maxHeight: 400, objectFit: 'cover' }} />
+      {(() => {
+        const img = dest.image || '';
+        const src = img.startsWith('http')
+          ? img
+          : img.replace(/^\/?static\/images\/?/, '/images/');
+        return <img src={src} alt={dest.name} style={{ width: '100%', maxHeight: 400, objectFit: 'cover' }} />;
+      })()}
       <p>{dest.description}</p>
       <div style={{ height: 300 }} ref={mapContainerRef}></div>
       <div style={{ marginTop: 10 }}>

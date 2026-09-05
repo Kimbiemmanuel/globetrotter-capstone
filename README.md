@@ -160,3 +160,25 @@ The React app proxies API requests to `http://localhost:5000` and reads images f
 
 Next steps: finish porting remaining endpoints, add authentication, and improve UI.
 
+## Production build & serve
+
+To create a production build of the React client and serve it from the Node server:
+
+```powershell
+cd client
+npm install
+npm run build
+
+# in a separate shell
+cd server
+npm install
+npm start
+```
+
+The Node server will serve the static React build from `client/build` and the API on the same port (default `:5000`).
+
+## Pull request
+
+Work for this migration is on the branch `feature/react-node-migration`. A snapshot PR was created to capture the pre-migration state: https://github.com/Kimbiemmanuel/globetrotter-capstone/pull/new/feature/react-node-migration
+
+

@@ -1,25 +1,33 @@
 import React from 'react';
 
-export default function DestinationList({ items = [], onSelect }) {
+export default function DestinationList({ items = [], selectedId = null, onSelect }) {
   return (
-    <ul style={{ listStyle: 'none', padding: 0 }}>
-      {items.map(item => (
-        <li key={item.id} style={{ marginBottom: 12, cursor: 'pointer' }} onClick={() => onSelect(item)}>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            {(() => {
-              const img = item.image || '';
-              const src = img.startsWith('http')
-                ? img
-                : img.replace(/^\/?static\/images\/?/, '/images/');
-              return <img src={src} alt={item.name} style={{ width: 80, height: 60, objectFit: 'cover' }} />;
-            })()}
-            <div>
-              <strong>{item.name}</strong>
-              <div style={{ fontSize: 12 }}>{item.short_description || item.description}</div>
-            </div>
-          </div>
-        </li>
-      ))}
+    <ul className="destination-list">
+      {items.map((item) => {
+        const isSelected = item.id === selectedId;
+        const img = item.image || '';
+        const src = img.startsWith('http') ? img : img.replace(/^\/?static\/images\/?/, '/images/');
+
+        return (
+          <li key={item.id}>
+            <button
+              type="button"
+              className={`destination-card ${isSelected ? 'selected' : ''}`}
+              onClick={() => onSelect(item)}
+            >
+              <img src={src} alt={item.name} />
+              <div className="destination-copy">
+                <div className="destination-meta-row">
+                  <strong>{item.name}</strong>
+                  {item.rating ? <span className="rating-pill">★ {item.rating}</span> : null}
+                </div>
+                <span className="destination-area">{item.area}</span>
+                <p>{item.short_description || item.description}</p>
+              </div>
+            </button>
+          </li>
+        );
+      })}
     </ul>
   );
 }
